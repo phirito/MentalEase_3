@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mentalease_2/core/utils/shared_widgets.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
 import 'package:mentalease_2/features/signin/login_area.dart';
 import 'package:mentalease_2/features/signup/signup_area.dart';
-// Import the HomeArea class
+import 'startupdesign_widgets.dart'; // Import User Agreement page
 
 void main() {
   runApp(const MyApp());
@@ -41,26 +42,41 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            const Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text('Mental'),
+      // appBar: AppBar(
+      //   title: Row(
+      //     children: [
+      //       const Expanded(
+      //         child: Align(
+      //           alignment: Alignment.centerRight,
+      //           child: Text('Mental'),
+      //         ),
+      //       ),
+      //       widget.logo,
+      //       const Expanded(
+      //         child: Align(
+      //           alignment: Alignment.centerLeft,
+      //           child: Text('Ease'),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
               ),
             ),
-            widget.logo,
-            const Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Ease'),
-              ),
-            ),
-          ],
-        ),
+            child: null, // Prevent overlapping issues
+          ),
+
+          _buildMainPage(context),
+        ],
       ),
-      body: _buildMainPage(context),
     );
   }
 
@@ -68,12 +84,62 @@ class _MyHomePageState extends State<MyHomePage> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    20, 300, 20, 20), // Adjust the padding value as needed
+                child: Image.asset(
+                  "assets/images/mentalease_logo.png",
+                  width: 200,
+                  height: 200,
+                ),
+              ),
+            ],
+          ),
           SizedBox(
             height: MediaQuery.of(context).size.height,
             child: const Center(
-              child: Text('Welcome to MentalEase'),
+              child: Text(
+                'Welcome to MentalEase',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 50, // Change the text size here
+                  fontFamily:
+                      'CustomFont', // Replace 'CustomFont' with your font's name
+                  fontWeight: FontWeight.bold,
+                  // Optional: add boldness
+                ),
+              ),
             ),
           ),
+          Container(
+            width: 320,
+            height: 750,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 116, 8, 0),
+              borderRadius: BorderRadius.circular(20), // Rounded corners
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3), // Shadow color
+                  spreadRadius: 2, // How much the shadow spreads
+                  blurRadius: 10, // How blurry the shadow is
+                  offset: const Offset(
+                      0, 5), // Position of the shadow (horizontal, vertical)
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(10), // Apply the same border radius
+              child: const Center(
+                child:
+                    UserAgreementPage(), // Display the User Agreement widget here
+              ),
+            ),
+          ),
+          vSpacer(20),
           ElevatedButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -81,10 +147,14 @@ class _MyHomePageState extends State<MyHomePage> {
               }));
             },
             style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromARGB(255, 148, 2, 2),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10))),
-            child: const Text("Sign-In"),
+            child: const Padding(
+              padding: EdgeInsets.fromLTRB(70, 10, 70, 10),
+              child: Text("Sign-In"),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -93,25 +163,21 @@ class _MyHomePageState extends State<MyHomePage> {
               }));
             },
             style: TextButton.styleFrom(
-                foregroundColor: Colors.black,
+                foregroundColor: const Color.fromARGB(255, 255, 255, 255),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(2))),
+                    borderRadius: BorderRadius.circular(10))),
             child: const Text("Sign-Up"),
           ),
           IconButton(
-            icon: const Icon(Icons.home,
-                color:
-                    Color.fromARGB(255, 116, 8, 0)), // Set the icon and color
+            icon: const Icon(Icons.home, color: Color.fromARGB(255, 116, 8, 0)),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const HomeArea(); // Navigate to HomeArea
+                return const HomeArea();
               }));
             },
-            splashColor: Colors
-                .transparent, // Optional: remove splash effect if not needed
-            highlightColor: Colors
-                .transparent, // Optional: remove highlight effect if not needed
-          )
+            splashColor: const Color.fromARGB(0, 99, 0, 0),
+            highlightColor: Colors.transparent,
+          ),
         ],
       ),
     );

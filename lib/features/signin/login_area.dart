@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
+import 'package:mentalease_2/core/utils/shared_widgets.dart';
 
 class LoginArea extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -9,7 +10,7 @@ class LoginArea extends StatelessWidget {
   void _login(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       // Perform login action
-      Navigator.of(context).push(_createPageTransition(const HomeArea()));
+      Navigator.of(context).push(createPageTransition(const HomeArea()));
     }
   }
 
@@ -91,23 +92,6 @@ class LoginArea extends StatelessWidget {
           return 'Please enter your $labelText';
         }
         return null;
-      },
-    );
-  }
-
-  PageRouteBuilder _createPageTransition(Widget page) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-
-        var tween = Tween(begin: begin, end: end);
-        var curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
-        var offsetAnimation = tween.animate(curvedAnimation);
-
-        return SlideTransition(position: offsetAnimation, child: child);
       },
     );
   }

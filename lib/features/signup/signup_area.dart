@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mentalease_2/core/utils/shared_widgets.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
 
 class SignUpArea extends StatelessWidget {
@@ -20,7 +21,7 @@ class SignUpArea extends StatelessWidget {
       // After a successful sign-up
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeArea()),
+        createPageTransition(const HomeArea()),
       );
     }
   }
@@ -40,17 +41,11 @@ class SignUpArea extends StatelessWidget {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
+              customTextFormField(
                 controller: _lnameController,
-                decoration: InputDecoration(
-                  labelText: "Last Name",
-                  hintText: "Enter Last Name",
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Last Name",
+                hintText: "Enter Last Name",
+                prefixIcon: Icons.person,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your last name';
@@ -58,18 +53,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _fnameController,
-                decoration: InputDecoration(
-                  labelText: "First Name",
-                  hintText: "Enter First Name",
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "First Name",
+                hintText: "Enter First Name",
+                prefixIcon: Icons.person,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your first name';
@@ -77,18 +66,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _mnameController,
-                decoration: InputDecoration(
-                  labelText: "Middle Name",
-                  hintText: "Enter Middle Name",
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Middle Name",
+                hintText: "Enter Middle Name",
+                prefixIcon: Icons.person,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your middle name';
@@ -96,18 +79,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _studIDController,
-                decoration: InputDecoration(
-                  labelText: "Student ID",
-                  hintText: "Enter Student ID",
-                  prefixIcon: const Icon(Icons.school),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Student ID",
+                hintText: "Enter Student ID",
+                prefixIcon: Icons.school,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -116,18 +93,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  hintText: "Enter Email",
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Email",
+                hintText: "Enter Email",
+                prefixIcon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -138,18 +109,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  hintText: "Enter password",
-                  prefixIcon: const Icon(Icons.lock),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Password",
+                hintText: "Enter password",
+                prefixIcon: Icons.lock,
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -158,18 +123,12 @@ class SignUpArea extends StatelessWidget {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              vSpacer(10),
+              customTextFormField(
                 controller: _confirmPasswordController,
-                decoration: InputDecoration(
-                  labelText: "Confirm Password",
-                  hintText: "Confirm password",
-                  prefixIcon: const Icon(Icons.lock),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(width: 1, color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                labelText: "Confirm Password",
+                hintText: "Confirm password",
+                prefixIcon: Icons.lock,
                 obscureText: true,
                 validator: (value) {
                   if (value != _passwordController.text) {
