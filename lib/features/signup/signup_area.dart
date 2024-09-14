@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mentalease_2/core/utils/shared_widgets.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
+import 'package:mentalease_2/core/services/api_service.dart'; // Import the ApiService
 
-class SignUpArea extends StatelessWidget {
+class SignUpArea extends StatefulWidget {
+  // Change to StatefulWidget
+  SignUpArea({super.key});
+
+  @override
+  _SignUpAreaState createState() => _SignUpAreaState();
+}
+
+class _SignUpAreaState extends State<SignUpArea> {
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
+
+  // Controllers...
   final TextEditingController _lnameController = TextEditingController();
   final TextEditingController _fnameController = TextEditingController();
   final TextEditingController _mnameController = TextEditingController();
@@ -13,20 +25,40 @@ class SignUpArea extends StatelessWidget {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  void _signup(BuildContext context) {
+  void _signup(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      // Perform sign-up action
-      // For example, you could send data to a server here
+      // Prepare user data
+      Map<String, dynamic> userData = {
+        'lname': _lnameController.text.trim(),
+        'fname': _fnameController.text.trim(),
+        'mname': _mnameController.text.trim(),
+        'studID': _studIDController.text.trim(),
+        'email': _emailController.text.trim(),
+        'password': _passwordController.text.trim(),
+      };
 
-      // After a successful sign-up
-      Navigator.pushReplacement(
-        context,
-        createPageTransition(const HomeArea()),
-      );
+      // Call the API
+      var response = await _apiService.signUp(userData);
+
+      if (response['status'] == 'success') {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'])),
+        );
+
+        // Navigate to HomeArea
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeArea()),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'])),
+        );
+      }
     }
   }
-
-  SignUpArea({super.key});
 
   @override
   Widget build(BuildContext context) {

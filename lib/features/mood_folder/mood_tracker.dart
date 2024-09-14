@@ -1,19 +1,23 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 
 class MoodTracker extends StatefulWidget {
   final bool showGreeting;
+  final Function(String) updateMoodOfTheDay; // Add this callback function
 
-  const MoodTracker({super.key, this.showGreeting = true});
+  const MoodTracker({
+    super.key,
+    this.showGreeting = true,
+    required this.updateMoodOfTheDay, // Initialize in the constructor
+  });
 
   @override
-  // ignore: library_private_types_in_public_api
   _MoodTrackerState createState() => _MoodTrackerState();
 }
 
 class _MoodTrackerState extends State<MoodTracker> {
   String _selectedMood = '';
+  String _moodOfTheDay = '';
+
   final List<Map<String, String>> _moods = [
     {'emoji': '😀', 'label': 'Happy'},
     {'emoji': '😐', 'label': 'Neutral'},
@@ -27,7 +31,7 @@ class _MoodTrackerState extends State<MoodTracker> {
 
   void _addMoodToHistory(String mood) {
     if (_moodHistory.length >= 3) {
-      _moodHistory.removeAt(0); // Remove the oldest mood
+      _moodHistory.removeAt(0);
     }
     _moodHistory.add(mood);
   }
@@ -44,22 +48,20 @@ class _MoodTrackerState extends State<MoodTracker> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.showGreeting) // Conditionally display greeting
+              if (widget.showGreeting)
                 Text(
                   "How was your day?",
                   style: TextStyle(fontSize: mediaQuery.textScaleFactor * 24),
                 ),
               SizedBox(height: mediaQuery.size.height * 0.02),
               SizedBox(
-                height: mediaQuery.size.height *
-                    0.3, // Adjust height relative to screen size
+                height: mediaQuery.size.height * 0.3,
                 child: GridView.count(
                   crossAxisCount: isLandscape ? 4 : 3,
                   mainAxisSpacing: mediaQuery.size.width * 0.02,
                   crossAxisSpacing: mediaQuery.size.width * 0.02,
                   childAspectRatio: 1,
-                  shrinkWrap:
-                      true, // Prevent GridView from taking up more space than necessary
+                  shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: _moods.map((mood) {
                     return ChoiceChip(
@@ -69,14 +71,20 @@ class _MoodTrackerState extends State<MoodTracker> {
                             fontSize: mediaQuery.textScaleFactor * 30),
                       ),
                       selected: _selectedMood == mood['label'],
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedMood = selected ? mood['label']! : '';
-                          if (selected) {
-                            _addMoodToHistory(mood['label']!);
-                          }
-                        });
-                      },
+                      onSelected: _moodOfTheDay.isEmpty
+                          ? (selected) {
+                              setState(() {
+                                _selectedMood = selected ? mood['label']! : '';
+                                if (selected) {
+                                  _moodOfTheDay = mood['label']!;
+                                  widget.updateMoodOfTheDay(
+                                      _moodOfTheDay); // Call the callback here
+                                  _addMoodToHistory(mood['label']!);
+                                  // Save mood of the day if needed
+                                }
+                              });
+                            }
+                          : null,
                     );
                   }).toList(),
                 ),
@@ -85,8 +93,8 @@ class _MoodTrackerState extends State<MoodTracker> {
               Container(
                 alignment: Alignment.center,
                 child: Text(
-                  _selectedMood.isNotEmpty
-                      ? 'You selected: $_selectedMood'
+                  _moodOfTheDay.isNotEmpty
+                      ? 'Today\'s mood: $_moodOfTheDay'
                       : 'Please select a mood',
                   style: TextStyle(fontSize: mediaQuery.textScaleFactor * 18),
                 ),
@@ -121,17 +129,14 @@ class _MoodTrackerState extends State<MoodTracker> {
     }
 
     return SizedBox(
-      height:
-          mediaQuery.size.height * 0.3, // Adjust height relative to screen size
-      width:
-          mediaQuery.size.width * 0.9, // Adjust width relative to screen size
+      height: mediaQuery.size.height * 0.3,
+      width: mediaQuery.size.width * 0.9,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: _moods.map((mood) {
             final count = moodCounts[mood['label']] ?? 0;
-            // Calculate bar height to avoid too large or small bars
             double barHeight =
                 mediaQuery.size.height * 0.1 * (count / (_moodHistory.length));
             return Padding(
@@ -158,10 +163,10 @@ class _MoodTrackerState extends State<MoodTracker> {
                       color: const Color.fromARGB(255, 116, 8, 0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2), // Shadow color
-                          spreadRadius: 1, // Spread radius of the shadow
-                          blurRadius: 4, // Blur radius of the shadow
-                          offset: const Offset(2, 2), // Offset of the shadow
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(2, 2),
                         ),
                       ],
                     ),
@@ -174,4 +179,12 @@ class _MoodTrackerState extends State<MoodTracker> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: MoodTracker(
+      updateMoodOfTheDay: (mood) {},
+    ),
+  ));
 }

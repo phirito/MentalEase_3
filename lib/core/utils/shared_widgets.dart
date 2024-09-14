@@ -50,3 +50,29 @@ Widget vSpacer(double height) {
     height: height,
   );
 }
+
+Widget buildTextField({
+  required TextEditingController controller,
+  required String labelText,
+  required IconData icon,
+  bool obscureText = false,
+}) {
+  return TextFormField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: labelText,
+      prefixIcon: Icon(icon, color: const Color.fromARGB(255, 116, 8, 0)),
+      border: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color.fromARGB(255, 116, 8, 0)),
+        borderRadius: BorderRadius.circular(15),
+      ),
+    ),
+    obscureText: obscureText,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter your $labelText';
+      }
+      return null;
+    },
+  );
+}
