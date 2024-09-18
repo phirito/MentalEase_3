@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:mentalease_2/features/mood_folder/widgets/greeting_widget.dart';
+import 'package:mentalease_2/features/mood_folder/widgets/mood_display.dart';
+import 'package:mentalease_2/features/mood_folder/widgets/mood_history.dart';
+import 'package:mentalease_2/features/mood_folder/widgets/mood_selection_grid.dart';
+import 'package:mentalease_2/widgets/container_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class MoodTracker extends StatefulWidget {
   final bool showGreeting;
-  final Function(String) updateMoodOfTheDay; // Add this callback function
+  final Function(String) updateMoodOfTheDay;
 
   const MoodTracker({
     super.key,
     this.showGreeting = true,
-    required this.updateMoodOfTheDay, // Initialize in the constructor
+    required this.updateMoodOfTheDay,
   });
 
   @override
@@ -17,7 +24,6 @@ class MoodTracker extends StatefulWidget {
 class _MoodTrackerState extends State<MoodTracker> {
   String _selectedMood = '';
   String _moodOfTheDay = '';
-
   final List<Map<String, String>> _moods = [
     {'emoji': '😀', 'label': 'Happy'},
     {'emoji': '😐', 'label': 'Neutral'},
@@ -29,11 +35,45 @@ class _MoodTrackerState extends State<MoodTracker> {
 
   final List<String> _moodHistory = ['Happy', 'Sad', 'Neutral'];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadMoodOfTheDay(); // Load saved mood when the page is opened
+  }
+
   void _addMoodToHistory(String mood) {
     if (_moodHistory.length >= 3) {
       _moodHistory.removeAt(0);
     }
     _moodHistory.add(mood);
+  }
+
+  Future<void> _saveMoodOfTheDay(String mood) async {
+    final prefs = await SharedPreferences.getInstance();
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Save mood and today's date
+    await prefs.setString('moodOfTheDay', mood);
+    await prefs.setString('moodDate', today);
+
+    // Update the state
+    setState(() {
+      _moodOfTheDay = mood;
+    });
+  }
+
+  Future<void> _loadMoodOfTheDay() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedMood = prefs.getString('moodOfTheDay');
+    String? savedDate = prefs.getString('moodDate');
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Check if mood has already been selected for today
+    if (savedMood != null && savedDate == today) {
+      setState(() {
+        _moodOfTheDay = savedMood;
+      });
+    }
   }
 
   @override
@@ -48,72 +88,22 @@ class _MoodTrackerState extends State<MoodTracker> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.showGreeting)
-                Text(
-                  "How was your day?",
-                  style: TextStyle(fontSize: mediaQuery.textScaleFactor * 24),
-                ),
+              if (widget.showGreeting) GreetingWidget(mediaQuery: mediaQuery),
               SizedBox(height: mediaQuery.size.height * 0.02),
-              SizedBox(
-                height: mediaQuery.size.height * 0.3,
-                child: GridView.count(
-                  crossAxisCount: isLandscape ? 4 : 3,
-                  mainAxisSpacing: mediaQuery.size.width * 0.02,
-                  crossAxisSpacing: mediaQuery.size.width * 0.02,
-                  childAspectRatio: 1,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _moods.map((mood) {
-                    return ChoiceChip(
-                      label: Text(
-                        mood['emoji']!,
-                        style: TextStyle(
-                            fontSize: mediaQuery.textScaleFactor * 30),
-                      ),
-                      selected: _selectedMood == mood['label'],
-                      onSelected: _moodOfTheDay.isEmpty
-                          ? (selected) {
-                              setState(() {
-                                _selectedMood = selected ? mood['label']! : '';
-                                if (selected) {
-                                  _moodOfTheDay = mood['label']!;
-                                  widget.updateMoodOfTheDay(
-                                      _moodOfTheDay); // Call the callback here
-                                  _addMoodToHistory(mood['label']!);
-                                  // Save mood of the day if needed
-                                }
-                              });
-                            }
-                          : null,
-                    );
-                  }).toList(),
-                ),
+              MoodSelectionGrid(
+                mediaQuery: mediaQuery,
+                isLandscape: isLandscape,
+                moods: _moods,
+                selectedMood: _selectedMood,
+                onMoodSelected: _handleMoodSelection,
+                moodOfTheDay: _moodOfTheDay,
               ),
               SizedBox(height: mediaQuery.size.height * 0.02),
-              Container(
-                alignment: Alignment.center,
-                child: Text(
-                  _moodOfTheDay.isNotEmpty
-                      ? 'Today\'s mood: $_moodOfTheDay'
-                      : 'Please select a mood',
-                  style: TextStyle(fontSize: mediaQuery.textScaleFactor * 18),
-                ),
-              ),
+              MoodDisplay(moodOfTheDay: _moodOfTheDay, mediaQuery: mediaQuery),
               SizedBox(height: mediaQuery.size.height * 0.05),
-              Text(
-                "Mood History (in last 3 Days)",
-                style: TextStyle(fontSize: mediaQuery.textScaleFactor * 20),
-              ),
-              SizedBox(height: mediaQuery.size.height * 0.02),
-              Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: mediaQuery.size.width * 0.05,
-                    vertical: mediaQuery.size.height * 0.02),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: _buildMoodHistoryChart(mediaQuery),
+              ContainerButton(
+                mediaQuery: mediaQuery,
+                onTap: () => _showMoodHistoryDialog(context),
               ),
             ],
           ),
@@ -122,61 +112,40 @@ class _MoodTrackerState extends State<MoodTracker> {
     );
   }
 
-  Widget _buildMoodHistoryChart(MediaQueryData mediaQuery) {
-    final Map<String, int> moodCounts = {};
-    for (var mood in _moodHistory) {
-      moodCounts[mood] = (moodCounts[mood] ?? 0) + 1;
+  void _handleMoodSelection(String moodLabel, bool selected) {
+    if (_moodOfTheDay.isEmpty) {
+      setState(() {
+        _selectedMood = selected ? moodLabel : '';
+        if (selected) {
+          _saveMoodOfTheDay(moodLabel); // Save the mood for today
+          widget.updateMoodOfTheDay(moodLabel);
+          _addMoodToHistory(moodLabel);
+        }
+      });
     }
+  }
 
-    return SizedBox(
-      height: mediaQuery.size.height * 0.3,
-      width: mediaQuery.size.width * 0.9,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: _moods.map((mood) {
-            final count = moodCounts[mood['label']] ?? 0;
-            double barHeight =
-                mediaQuery.size.height * 0.1 * (count / (_moodHistory.length));
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: mediaQuery.size.width * 0.02),
-              child: Column(
-                children: [
-                  Text(
-                    '${mood['emoji']}',
-                    style: TextStyle(fontSize: mediaQuery.textScaleFactor * 25),
-                  ),
-                  SizedBox(height: mediaQuery.size.height * 0.00),
-                  Text(
-                    '$count',
-                    style: TextStyle(fontSize: mediaQuery.textScaleFactor * 10),
-                  ),
-                  SizedBox(height: mediaQuery.size.height * 0.00),
-                  Container(
-                    width: mediaQuery.size.width * 0.1,
-                    height: barHeight > 0
-                        ? barHeight
-                        : mediaQuery.size.height * 0.0,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 116, 8, 0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(2, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-      ),
+  void _showMoodHistoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Mood History (Last 3 Days)"),
+          content: MoodHistoryChart(
+            mediaQuery: MediaQuery.of(context),
+            moods: _moods,
+            moodHistory: _moodHistory,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

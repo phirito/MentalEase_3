@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // Import User Agreement page
+import 'package:flutter/material.dart';
 import 'widgets/onboarding_screen.dart';
 
 void main() {

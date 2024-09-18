@@ -3,7 +3,7 @@ import 'package:mentalease_2/features/home/home_widgets/features_widgets.dart';
 
 Widget buildHomeContent({
   required String moodOfTheDay,
-  required bool hasMeditatedToday, // Changed to bool type
+  required bool hasMeditatedToday,
   required List<String> toDoList,
 }) {
   return LayoutBuilder(
@@ -17,14 +17,14 @@ Widget buildHomeContent({
                 margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
                 padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 121, 0, 0),
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black38,
                       spreadRadius: 1,
                       blurRadius: 2,
-                      offset: Offset(0, 2), // Shadow position
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
@@ -35,7 +35,9 @@ Widget buildHomeContent({
                       child: const Text(
                         'Quote of the day',
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 255, 255, 255)),
                       ),
                     ),
                     const Divider(),
@@ -43,7 +45,9 @@ Widget buildHomeContent({
                       padding: const EdgeInsets.all(16.0),
                       child: const Text(
                         'All our dreams can come true, if we have the courage to pursue them. \n\n-Walt Disney',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Color.fromARGB(255, 255, 255, 255)),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -68,14 +72,14 @@ Widget buildHomeContent({
                             width: 150,
                             height: 150,
                           ),
-                        ), // Added space between containers
+                        ),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: CustomContainer(
                             text:
                                 'Meditation Status: ${hasMeditatedToday ? 'Completed' : 'Not Completed'}',
                             backgroundColor:
-                                const Color.fromARGB(255, 187, 187, 187),
+                                const Color.fromARGB(255, 255, 255, 255),
                             width: 150,
                             height: 150,
                           ),

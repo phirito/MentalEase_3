@@ -8,7 +8,6 @@ class User {
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
-        $this->collection = (new MongoDB\Client)->mentalease_db->users;
     }
 
     public function createUser($data) {

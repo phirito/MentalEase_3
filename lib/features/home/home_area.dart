@@ -1,4 +1,3 @@
-// home_area.dart
 import 'package:flutter/material.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
@@ -78,19 +77,100 @@ class _HomeAreaState extends State<HomeArea> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false, // Remove the back button
           title: Row(
             children: [
+              const Text('Mental',
+                  style: TextStyle(color: Colors.white, fontSize: 20)),
               Image.asset(
                 'assets/images/mentalease_logo.png',
-                width: 50,
-                height: 50,
+                width: 40,
+                height: 40,
               ),
-              const SizedBox(width: 10),
-              const Text('MentalEase', style: TextStyle(color: Colors.white)),
+              const Text('Ease',
+                  style: TextStyle(color: Colors.white, fontSize: 20)),
             ],
           ),
           backgroundColor: const Color.fromARGB(255, 116, 8, 0),
-          automaticallyImplyLeading: false,
+        ),
+        endDrawer: Drawer(
+          // Right-sided Drawer
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 116, 8, 0),
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/mentalease_logo.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'MentalEase Menu',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Home'),
+                onTap: () {
+                  _onItemTapped(0);
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.track_changes),
+                title: const Text('Mood Tracker'),
+                onTap: () {
+                  _onItemTapped(1);
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.spa),
+                title: const Text('Meditation'),
+                onTap: () {
+                  _onItemTapped(2);
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.book),
+                title: const Text('Journaling'),
+                onTap: () {
+                  _onItemTapped(3);
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.phone_enabled),
+                title: const Text('Contact Us'),
+                onTap: () {
+                  // Handle navigation to settings page
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () {
+                  // Handle logout
+                  Navigator.pop(context); // Close the drawer
+                },
+              ),
+            ],
+          ),
         ),
         body: PageView(
           controller: _pageController,

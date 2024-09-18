@@ -65,7 +65,7 @@ class _SignUpAreaState extends State<SignUpArea> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sign Up"),
-        backgroundColor: const Color.fromARGB(255, 218, 218, 218),
+        backgroundColor: const Color.fromARGB(255, 249, 251, 255),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -173,7 +173,7 @@ class _SignUpAreaState extends State<SignUpArea> {
               ElevatedButton(
                 onPressed: () => _signup(context), // Pass context to _signup
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
+                  foregroundColor: const Color.fromARGB(255, 107, 0, 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
