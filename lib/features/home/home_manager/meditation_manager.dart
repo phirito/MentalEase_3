@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class MeditationManager {
   bool _hasMeditatedToday = false;
@@ -6,8 +6,8 @@ class MeditationManager {
   bool get hasMeditatedToday => _hasMeditatedToday;
 
   Future<void> checkMeditationStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? lastMeditationDate = prefs.getString('lastMeditationDate');
+    var box = await Hive.openBox('meditationBox');
+    String? lastMeditationDate = box.get('lastMeditationDate');
 
     if (lastMeditationDate != null) {
       DateTime lastMeditation = DateTime.parse(lastMeditationDate);
@@ -22,9 +22,9 @@ class MeditationManager {
   }
 
   Future<void> updateMeditationStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var box = await Hive.openBox('meditationBox');
     DateTime today = DateTime.now();
-    await prefs.setString('lastMeditationDate', today.toIso8601String());
+    await box.put('lastMeditationDate', today.toIso8601String());
     _hasMeditatedToday = true;
   }
 }

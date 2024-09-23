@@ -20,7 +20,7 @@ class ContainerButton extends StatelessWidget {
           vertical: mediaQuery.size.height * 0.02,
         ),
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 126, 0, 0),
+          color: const Color.fromARGB(255, 126, 0, 0),
           borderRadius: BorderRadius.circular(20.0),
         ),
         alignment: Alignment.center,

@@ -5,6 +5,7 @@ import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dar
 import 'package:mentalease_2/features/home/home_manager/todo_manager.dart';
 import 'package:mentalease_2/features/home/home_widgets/home_content_widgets.dart';
 import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
+import 'package:mentalease_2/features/med_folder/med_manager/session_history_manager.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
 
@@ -22,6 +23,7 @@ class _HomeAreaState extends State<HomeArea> {
   final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
   final MeditationManager _meditationManager = MeditationManager();
   final ToDoManager _toDoManager = ToDoManager();
+  final SessionHistoryManager _sessionHistoryManager = SessionHistoryManager();
 
   @override
   void initState() {
@@ -33,6 +35,8 @@ class _HomeAreaState extends State<HomeArea> {
     await _moodTrackerManager.loadMoodOfTheDay();
     await _meditationManager.checkMeditationStatus();
     await _toDoManager.loadToDoList();
+    await _sessionHistoryManager
+        .getSessionHistory(); // Ensure session history is loaded
 
     // Ensure state update happens after data is fully loaded
     if (mounted) {
@@ -76,159 +80,153 @@ class _HomeAreaState extends State<HomeArea> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false, // Remove the back button
-          title: Row(
-            children: [
-              const Text('Mental',
-                  style: TextStyle(color: Colors.white, fontSize: 20)),
-              Image.asset(
-                'assets/images/mentalease_logo.png',
-                width: 40,
-                height: 40,
-              ),
-              const Text('Ease',
-                  style: TextStyle(color: Colors.white, fontSize: 20)),
-            ],
-          ),
-          backgroundColor: const Color.fromARGB(255, 116, 8, 0),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            const Text('Mental',
+                style: TextStyle(color: Colors.white, fontSize: 20)),
+            Image.asset(
+              'assets/images/mentalease_logo.png',
+              width: 40,
+              height: 40,
+            ),
+            const Text('Ease',
+                style: TextStyle(color: Colors.white, fontSize: 20)),
+          ],
         ),
-        endDrawer: Drawer(
-          // Right-sided Drawer
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 116, 8, 0),
-                ),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/mentalease_logo.png',
-                      width: 50,
-                      height: 50,
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'MentalEase Menu',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  _onItemTapped(0);
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.track_changes),
-                title: const Text('Mood Tracker'),
-                onTap: () {
-                  _onItemTapped(1);
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.spa),
-                title: const Text('Meditation'),
-                onTap: () {
-                  _onItemTapped(2);
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.book),
-                title: const Text('Journaling'),
-                onTap: () {
-                  _onItemTapped(3);
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.phone_enabled),
-                title: const Text('Contact Us'),
-                onTap: () {
-                  // Handle navigation to settings page
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  // Handle logout
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-            ],
-          ),
-        ),
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+        backgroundColor: const Color.fromARGB(255, 116, 8, 0),
+      ),
+      endDrawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            buildHomeContent(
-                moodOfTheDay: _moodTrackerManager.moodOfTheDay,
-                toDoList: _toDoManager.toDoList,
-                hasMeditatedToday: _meditationManager.hasMeditatedToday),
-            MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
-            MeditateArea(updateMeditationStatus: _updateMeditationStatus),
-            JournalingArea(
-              addToDoCallback: _addToDoItem,
-              removeToDoCallback: _removeToDoItem,
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 116, 8, 0),
+              ),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/images/mentalease_logo.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'MentalEase Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                _onItemTapped(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.track_changes),
+              title: const Text('Mood Tracker'),
+              onTap: () {
+                _onItemTapped(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.spa),
+              title: const Text('Meditation'),
+              onTap: () {
+                _onItemTapped(2);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.book),
+              title: const Text('Journaling'),
+              onTap: () {
+                _onItemTapped(3);
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.phone_enabled),
+              title: const Text('Contact Us'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
-        bottomNavigationBar: FlashyTabBar(
-          selectedIndex: _selectedIndex,
-          onItemSelected: _onItemTapped,
-          items: [
-            FlashyTabBarItem(
-              icon: const Icon(Icons.home),
-              title: const Text('Home'),
-              activeColor: const Color.fromARGB(
-                  255, 128, 0, 0), // Color when the tab is selected
-              inactiveColor: Colors.grey, // Color when the tab is not selected
-            ),
-            FlashyTabBarItem(
-              icon: const Icon(Icons.track_changes),
-              title: const Text('Mood'),
-              activeColor: const Color.fromARGB(
-                  255, 116, 8, 0), // Active color for the Mood tab
-              inactiveColor: Colors.grey, // Inactive color
-            ),
-            FlashyTabBarItem(
-              icon: const Icon(Icons.spa),
-              title: const Text('Meditate'),
-              activeColor: const Color.fromARGB(
-                  255, 116, 8, 0), // Active color for Meditate tab
-              inactiveColor: Colors.grey, // Inactive color
-            ),
-            FlashyTabBarItem(
-              icon: const Icon(Icons.book),
-              title: const Text('Journaling'),
-              activeColor: const Color.fromARGB(
-                  255, 116, 8, 0), // Active color for Journaling tab
-              inactiveColor: Colors.grey, // Inactive color
-            ),
-          ],
-          animationDuration: const Duration(milliseconds: 300),
-          backgroundColor: Colors.white, // Background color of the tab bar
-          iconSize: 24,
-          height: 60,
-        ));
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: <Widget>[
+          buildHomeContent(
+              moodOfTheDay: _moodTrackerManager.moodOfTheDay,
+              toDoList: _toDoManager.toDoList,
+              hasMeditatedToday: _meditationManager.hasMeditatedToday),
+          MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
+          MeditateArea(updateMeditationStatus: _updateMeditationStatus),
+          JournalingArea(
+            addToDoCallback: _addToDoItem,
+            removeToDoCallback: _removeToDoItem,
+          ),
+        ],
+      ),
+      bottomNavigationBar: FlashyTabBar(
+        selectedIndex: _selectedIndex,
+        onItemSelected: _onItemTapped,
+        items: [
+          FlashyTabBarItem(
+            icon: const Icon(Icons.home),
+            title: const Text('Home'),
+            activeColor: const Color.fromARGB(255, 128, 0, 0),
+            inactiveColor: Colors.grey,
+          ),
+          FlashyTabBarItem(
+            icon: const Icon(Icons.track_changes),
+            title: const Text('Mood'),
+            activeColor: const Color.fromARGB(255, 116, 8, 0),
+            inactiveColor: Colors.grey,
+          ),
+          FlashyTabBarItem(
+            icon: const Icon(Icons.spa),
+            title: const Text('Meditate'),
+            activeColor: const Color.fromARGB(255, 116, 8, 0),
+            inactiveColor: Colors.grey,
+          ),
+          FlashyTabBarItem(
+            icon: const Icon(Icons.book),
+            title: const Text('Journaling'),
+            activeColor: const Color.fromARGB(255, 116, 8, 0),
+            inactiveColor: Colors.grey,
+          ),
+        ],
+        animationDuration: const Duration(milliseconds: 300),
+        backgroundColor: Colors.white,
+        iconSize: 24,
+        height: 60,
+      ),
+    );
   }
 }

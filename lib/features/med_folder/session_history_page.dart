@@ -1,10 +1,10 @@
+// SessionHistoryPage.dart
 import 'package:flutter/material.dart';
 
 class SessionHistoryPage extends StatelessWidget {
   final List<Map<String, dynamic>> sessionHistory;
 
-  const SessionHistoryPage({Key? key, required this.sessionHistory})
-      : super(key: key);
+  const SessionHistoryPage({super.key, required this.sessionHistory});
 
   @override
   Widget build(BuildContext context) {

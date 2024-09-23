@@ -6,8 +6,7 @@ class MeditateTimer extends StatefulWidget {
   final Function onComplete;
 
   const MeditateTimer(
-      {Key? key, required this.selectedDuration, required this.onComplete})
-      : super(key: key);
+      {super.key, required this.selectedDuration, required this.onComplete});
 
   @override
   _MeditateTimerState createState() => _MeditateTimerState();

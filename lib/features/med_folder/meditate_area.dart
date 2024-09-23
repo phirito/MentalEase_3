@@ -27,12 +27,15 @@ class _MeditateAreaState extends State<MeditateArea> {
   }
 
   void _increaseDuration() {
-    setState(() => _selectedDuration += 10);
+    setState(() => _selectedDuration += 30); // Increase by 30 seconds
   }
 
   void _decreaseDuration() {
     setState(() {
-      if (_selectedDuration > 10) _selectedDuration -= 10;
+      if (_selectedDuration > 30) {
+        _selectedDuration -=
+            30; // Decrease by 30 seconds, minimum is 30 seconds
+      }
     });
   }
 
@@ -67,45 +70,51 @@ class _MeditateAreaState extends State<MeditateArea> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Customize Duration"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Adjust the meditation duration:'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+        return StatefulBuilder(
+          // Use StatefulBuilder to manage state within the dialog
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text("Customize Duration"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle),
-                    onPressed: _decreaseDuration,
-                    tooltip: "Decrease Time",
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        '${_selectedDuration ~/ 60} min ${_selectedDuration % 60} sec',
-                        style: const TextStyle(fontSize: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          setStateDialog(() {
+                            // Use setStateDialog to update the dialog's state
+                            _decreaseDuration();
+                          });
+                        },
                       ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle),
-                    onPressed: _increaseDuration,
-                    tooltip: "Increase Time",
+                      Text(
+                          "${_selectedDuration ~/ 60} min ${_selectedDuration % 60} sec"),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          setStateDialog(() {
+                            // Use setStateDialog to update the dialog's state
+                            _increaseDuration();
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("OK"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
         );
       },
     );
