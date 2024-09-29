@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      'http://your_server_address/backend/index.php'; // Replace with your server address
+      'http://your_server_address/me_backend/index.js'; // Replace with your server address
 
   // Sign-Up
   Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData) async {

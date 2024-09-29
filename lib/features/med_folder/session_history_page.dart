@@ -1,4 +1,3 @@
-// SessionHistoryPage.dart
 import 'package:flutter/material.dart';
 
 class SessionHistoryPage extends StatelessWidget {
@@ -22,7 +21,17 @@ class SessionHistoryPage extends StatelessWidget {
                   var session = sessionHistory[index];
                   var durationMinutes = session['duration'] ~/ 60;
                   var durationSeconds = session['duration'] % 60;
-                  var time = session['time'] as DateTime;
+
+                  // Ensure the time is correctly parsed as a DateTime object
+                  DateTime time;
+                  if (session['time'] is String) {
+                    time = DateTime.parse(session['time']);
+                  } else if (session['time'] is DateTime) {
+                    time = session['time'];
+                  } else {
+                    // Fallback if the data is corrupted or unexpected
+                    time = DateTime.now();
+                  }
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),

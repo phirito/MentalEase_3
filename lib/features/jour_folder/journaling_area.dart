@@ -31,7 +31,7 @@ class _JournalingAreaState extends State<JournalingArea> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Entry Successful!'),
+          content: Text('Entry Successful! Swipe to left <--'),
           duration: Duration(seconds: 2),
         ),
       );

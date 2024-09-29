@@ -23,6 +23,9 @@ class MoodTracker extends StatefulWidget {
 
 class _MoodTrackerState extends State<MoodTracker> {
   final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   String _selectedMood = '';
   String _moodOfTheDay = '';
   final List<Map<String, String>> _moods = [
@@ -34,11 +37,8 @@ class _MoodTrackerState extends State<MoodTracker> {
     {'emoji': '😴', 'label': 'Tired'},
   ];
 
-  // List to store mood, date, and time
-  final List<Map<String, String>> _moodHistory = [];
-
-  // Mood statistics map
-  final Map<String, int> _moodStats = {
+  List<Map<String, String>> _moodHistory = [];
+  Map<String, int> _moodStats = {
     'Happy': 0,
     'Neutral': 0,
     'Sad': 0,
@@ -46,9 +46,6 @@ class _MoodTrackerState extends State<MoodTracker> {
     'Anxious': 0,
     'Tired': 0,
   };
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
@@ -60,14 +57,24 @@ class _MoodTrackerState extends State<MoodTracker> {
 
   Future<void> _loadMoodData() async {
     await _moodTrackerManager.loadMoodOfTheDay();
-    setState(() {});
+    var box = await Hive.openBox('moodBox');
+    setState(() {
+      _moodHistory = List<Map<String, String>>.from(
+          box.get('moodHistory', defaultValue: []));
+      _moodStats =
+          Map<String, int>.from(box.get('moodStats', defaultValue: _moodStats));
+    });
   }
 
-  // Initialize local notifications for Android
+  Future<void> _saveMoodData() async {
+    var box = await Hive.openBox('moodBox');
+    await box.put('moodHistory', _moodHistory);
+    await box.put('moodStats', _moodStats);
+  }
+
   void _initializeNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
-
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
@@ -75,13 +82,12 @@ class _MoodTrackerState extends State<MoodTracker> {
     _scheduleDailyReminder();
   }
 
-  // Schedule daily reminder notification
   void _scheduleDailyReminder() async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'mood_reminder_channel', // ID
-      'Daily Mood Reminder', // Name
-      channelDescription: 'Reminder to log your daily mood', // Description
+      'mood_reminder_channel',
+      'Daily Mood Reminder',
+      channelDescription: 'Reminder to log your daily mood',
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -89,28 +95,25 @@ class _MoodTrackerState extends State<MoodTracker> {
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    // Schedule daily notification at 9:00 AM
     await flutterLocalNotificationsPlugin.showDailyAtTime(
       0,
       'Mood Reminder',
       'Don\'t forget to log your mood today!',
-      const Time(8, 0, 0),
+      const Time(9, 0, 0),
       platformChannelSpecifics,
     );
   }
 
-  // Save mood of the day with date and time
   void _addMoodToHistory(String mood) {
     String nowDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     String nowTime = DateFormat('HH:mm:ss').format(DateTime.now());
 
-    // Add to history
     _moodHistory.add({'mood': mood, 'date': nowDate, 'time': nowTime});
-
-    // Update mood statistics
     setState(() {
       _moodStats[mood] = (_moodStats[mood] ?? 0) + 1;
     });
+
+    _saveMoodData(); // Save the updated mood history and stats
   }
 
   Future<void> _saveMoodOfTheDay(String mood) async {
@@ -203,7 +206,6 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Widget _buildMoodTrendsGraph() {
-    final moodStats = _moodTrackerManager.getMoodStats();
     return SizedBox(
       height: 200,
       child: Padding(
@@ -215,7 +217,7 @@ class _MoodTrackerState extends State<MoodTracker> {
             titlesData: const FlTitlesData(show: false),
             lineBarsData: [
               LineChartBarData(
-                spots: _generateMoodChartSpots(moodStats),
+                spots: _generateMoodChartSpots(),
                 isCurved: true,
                 barWidth: 3,
                 color: const Color.fromARGB(255, 114, 0, 0),
@@ -228,8 +230,7 @@ class _MoodTrackerState extends State<MoodTracker> {
     );
   }
 
-  // Generate data points for mood statistics chart
-  List<FlSpot> _generateMoodChartSpots(Map<String, int> moodStats) {
+  List<FlSpot> _generateMoodChartSpots() {
     List<String> moods = [
       'Happy',
       'Neutral',
@@ -241,7 +242,7 @@ class _MoodTrackerState extends State<MoodTracker> {
     List<FlSpot> spots = [];
 
     for (int i = 0; i < moods.length; i++) {
-      spots.add(FlSpot(i.toDouble(), moodStats[moods[i]]!.toDouble()));
+      spots.add(FlSpot(i.toDouble(), _moodStats[moods[i]]!.toDouble()));
     }
 
     return spots;
@@ -275,17 +276,14 @@ class _MoodTrackerState extends State<MoodTracker> {
     Share.share(moodHistoryText);
   }
 
-  // Mood History Carousel with date and time
   Widget _buildMoodHistoryCarousel() {
-    final moodHistory = _moodTrackerManager.getMoodHistoryForCarousel();
-
-    if (moodHistory.isEmpty) {
+    if (_moodHistory.isEmpty) {
       return const Text('No mood history available');
     }
 
     return CarouselSlider(
       options: CarouselOptions(height: 150.0, autoPlay: true),
-      items: moodHistory.map((entry) {
+      items: _moodHistory.map((entry) {
         return Builder(
           builder: (BuildContext context) {
             return Container(
@@ -324,9 +322,8 @@ class _MoodTrackerState extends State<MoodTracker> {
         _selectedMood = selected ? moodLabel : '';
         if (selected) {
           widget.updateMoodOfTheDay(selectedMood);
-          _saveMoodOfTheDay(moodLabel);
-          widget.updateMoodOfTheDay(moodLabel);
-          _addMoodToHistory(moodLabel);
+          _saveMoodOfTheDay(selectedMood);
+          _addMoodToHistory(selectedMood);
           _moodTrackerManager.updateMoodOfTheDay(selectedMood);
           _addMoodNoteDialog();
         }

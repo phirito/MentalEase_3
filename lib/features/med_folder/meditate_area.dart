@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mentalease_2/features/med_folder/meditation_session_page.dart';
 import 'package:mentalease_2/features/med_folder/session_history_page.dart';
+import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 
 class MeditateArea extends StatefulWidget {
   const MeditateArea({super.key, required this.updateMeditationStatus});
@@ -12,17 +13,35 @@ class MeditateArea extends StatefulWidget {
 }
 
 class _MeditateAreaState extends State<MeditateArea> {
+  final MeditationManager _meditationManager = MeditationManager();
   int _selectedDuration = 10; // Default duration
-  final List<Map<String, dynamic>> _sessionHistory = [];
+  List<Map<String, dynamic>> _sessionHistory = [];
 
-  void _completeSession() {
+  @override
+  void initState() {
+    super.initState();
+
+    _loadSessionHistory(); // Load the meditation status and session history
+  }
+
+  // Load session history from MeditationManager
+  Future<void> _loadSessionHistory() async {
+    await _meditationManager.checkMeditationStatus();
     setState(() {
-      _sessionHistory.add({
-        'duration': _selectedDuration,
-        'time': DateTime.now(),
-      });
-    });
+      _sessionHistory = _meditationManager.sessionHistory;
+    }); // Refresh UI once data is loaded
+  }
 
+  // Complete meditation session
+  void _completeSession() async {
+    final session = {
+      'duration': _selectedDuration,
+      'time': DateTime.now().toIso8601String(),
+    };
+
+    // Save session to history and update status
+    await _meditationManager.saveSessionHistory(session);
+    await _loadSessionHistory(); // Reload the updated session history
     widget.updateMeditationStatus(true);
   }
 
@@ -110,7 +129,10 @@ class _MeditateAreaState extends State<MeditateArea> {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: const Text("OK"),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(color: Color.fromARGB(255, 128, 0, 0)),
+                  ),
                 ),
               ],
             );
@@ -139,6 +161,24 @@ class _MeditateAreaState extends State<MeditateArea> {
         builder: (context) =>
             SessionHistoryPage(sessionHistory: _sessionHistory),
       ),
+    );
+  }
+
+  Widget _buildMeditationHistory() {
+    if (_sessionHistory.isEmpty) {
+      return const Text('No meditation sessions recorded');
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _sessionHistory.length,
+      itemBuilder: (context, index) {
+        final session = _sessionHistory[index];
+        return ListTile(
+          title: Text('Duration: ${session['duration']} minutes'),
+          subtitle: Text('Time: ${session['time'].toString()}'),
+        );
+      },
     );
   }
 

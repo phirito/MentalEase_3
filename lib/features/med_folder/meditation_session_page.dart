@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mentalease_2/features/med_folder/med_manager/session_history_manager.dart';
 import 'package:mentalease_2/features/med_folder/meditate_timer.dart';
+import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 
 class MeditationSessionPage extends StatelessWidget {
   final int selectedDuration;
@@ -14,7 +14,7 @@ class MeditationSessionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionHistoryManager = SessionHistoryManager();
+    final MeditationManager _meditationManager = MeditationManager();
 
     return Scaffold(
       appBar: AppBar(title: const Text("Meditation Session")),
@@ -26,7 +26,11 @@ class MeditationSessionPage extends StatelessWidget {
             MeditateTimer(
               selectedDuration: selectedDuration,
               onComplete: () async {
-                await sessionHistoryManager.addSession(selectedDuration);
+                final session = {
+                  'duration': selectedDuration,
+                  'time': DateTime.now().toIso8601String(),
+                };
+                await _meditationManager.saveSessionHistory(session);
                 onComplete();
                 Navigator.pop(context);
               },

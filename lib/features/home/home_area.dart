@@ -5,9 +5,9 @@ import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dar
 import 'package:mentalease_2/features/home/home_manager/todo_manager.dart';
 import 'package:mentalease_2/features/home/home_widgets/home_content_widgets.dart';
 import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
-import 'package:mentalease_2/features/med_folder/med_manager/session_history_manager.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeArea extends StatefulWidget {
   const HomeArea({super.key});
@@ -17,13 +17,13 @@ class HomeArea extends StatefulWidget {
 }
 
 class _HomeAreaState extends State<HomeArea> {
-  final PageController _pageController = PageController();
   int _selectedIndex = 0;
+  final PageController _pageController = PageController();
 
+  // Use shared instances of managers to ensure that state is consistent across pages
   final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
   final MeditationManager _meditationManager = MeditationManager();
   final ToDoManager _toDoManager = ToDoManager();
-  final SessionHistoryManager _sessionHistoryManager = SessionHistoryManager();
 
   @override
   void initState() {
@@ -32,11 +32,10 @@ class _HomeAreaState extends State<HomeArea> {
   }
 
   Future<void> _loadData() async {
+    await Hive.initFlutter();
     await _moodTrackerManager.loadMoodOfTheDay();
     await _meditationManager.checkMeditationStatus();
-    await _toDoManager.loadToDoList();
-    await _sessionHistoryManager
-        .getSessionHistory(); // Ensure session history is loaded
+    await _toDoManager.loadToDoList(); // Ensure session history is loaded
 
     // Ensure state update happens after data is fully loaded
     if (mounted) {
@@ -79,6 +78,9 @@ class _HomeAreaState extends State<HomeArea> {
 
   @override
   Widget build(BuildContext context) {
+    String today = DateTime.now().toIso8601String().split('T').first;
+    String? moodToday = _moodTrackerManager.getMood(today);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -182,9 +184,10 @@ class _HomeAreaState extends State<HomeArea> {
         },
         children: <Widget>[
           buildHomeContent(
-              moodOfTheDay: _moodTrackerManager.moodOfTheDay,
-              toDoList: _toDoManager.toDoList,
-              hasMeditatedToday: _meditationManager.hasMeditatedToday),
+            moodOfTheDay: _moodTrackerManager.moodOfTheDay,
+            toDoList: _toDoManager.toDoList,
+            hasMeditatedToday: _meditationManager.hasMeditatedToday,
+          ),
           MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
           MeditateArea(updateMeditationStatus: _updateMeditationStatus),
           JournalingArea(

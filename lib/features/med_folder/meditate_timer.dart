@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MeditateTimer extends StatefulWidget {
   final int selectedDuration;
@@ -20,6 +22,8 @@ class _MeditateTimerState extends State<MeditateTimer>
   late AnimationController _controller;
   late Animation<double> _breathingAnimation;
   String _breathingText = "Inhale";
+  String? _selectedMusicPath;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -57,6 +61,10 @@ class _MeditateTimerState extends State<MeditateTimer>
         }
       });
     });
+
+    if (_selectedMusicPath != null) {
+      _audioPlayer.play(DeviceFileSource(_selectedMusicPath!));
+    }
   }
 
   void _pauseTimer() {
@@ -64,77 +72,115 @@ class _MeditateTimerState extends State<MeditateTimer>
     setState(() => _isRunning = false);
     _controller.stop();
     _timer?.cancel();
+    _audioPlayer.pause();
   }
 
   void _resetTimer() {
     setState(() {
       _isRunning = false;
       _start = 0;
+      _audioPlayer.stop();
     });
     _controller.reset();
     _timer?.cancel();
+  }
+
+  Future<void> _selectMusic() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _selectedMusicPath = result.files.single.path;
+      });
+    }
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        Stack(
-          alignment: Alignment.center,
+        Column(
           children: [
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _breathingAnimation.value,
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                );
-              },
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _breathingAnimation.value,
+                      child: Container(
+                        width: 250,
+                        height: 250,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 116, 0, 0)
+                              .withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Text(
+                  "${_start ~/ 60}:${(_start % 60).toString().padLeft(2, '0')}",
+                  style: const TextStyle(fontSize: 48),
+                ),
+              ],
             ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: _startTimer,
+                  icon: const Icon(Icons.play_arrow),
+                  iconSize: 30,
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: _pauseTimer,
+                  icon: const Icon(Icons.pause),
+                  iconSize: 30,
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: _resetTimer,
+                  icon: const Icon(Icons.refresh),
+                  iconSize: 30,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
             Text(
-              "${_start ~/ 60}:${(_start % 60).toString().padLeft(2, '0')}",
-              style: const TextStyle(fontSize: 48),
+              _isRunning ? _breathingText : "Press Start to Meditate",
+              style: const TextStyle(fontSize: 24, color: Colors.grey),
+            ),
+            const SizedBox(height: 200),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 0),
+                  child: IconButton(
+                    onPressed: _selectMusic,
+                    icon: const Icon(Icons.music_note),
+                    tooltip: "Select Music",
+                    iconSize: 30,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: _startTimer,
-              icon: const Icon(Icons.play_arrow),
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              onPressed: _pauseTimer,
-              icon: const Icon(Icons.pause),
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              onPressed: _resetTimer,
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Text(
-          _isRunning ? _breathingText : "Press Start to Meditate",
-          style: const TextStyle(fontSize: 24, color: Colors.grey),
         ),
       ],
     );

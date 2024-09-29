@@ -2,6 +2,25 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 class MoodTrackerManager {
+  final Box moodBox = Hive.box('moodBox');
+
+  void setMood(String date, String mood) {
+    moodBox.put(date, mood);
+  }
+
+  String? getMood(String date) {
+    return moodBox.get(date);
+  }
+
+  Map<String, String> getMoodHistory() {
+    final keys = moodBox.keys.cast<String>();
+    final Map<String, String> moodHistory = {};
+    for (String key in keys) {
+      moodHistory[key] = moodBox.get(key);
+    }
+    return moodHistory;
+  }
+
   String _moodOfTheDay = '';
   String get moodOfTheDay => _moodOfTheDay;
 
