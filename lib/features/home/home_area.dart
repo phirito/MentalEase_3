@@ -7,7 +7,6 @@ import 'package:mentalease_2/features/home/home_widgets/home_content_widgets.dar
 import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeArea extends StatefulWidget {
   const HomeArea({super.key});
@@ -32,7 +31,6 @@ class _HomeAreaState extends State<HomeArea> {
   }
 
   Future<void> _loadData() async {
-    await Hive.initFlutter();
     await _moodTrackerManager.loadMoodOfTheDay();
     await _meditationManager.checkMeditationStatus();
     await _toDoManager.loadToDoList(); // Ensure session history is loaded

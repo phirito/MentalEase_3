@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mentalease_2/core/utils/shared_widgets.dart';
-import 'package:mentalease_2/features/home/home_area.dart';
+import 'package:mentalease_2/widgets/shared_widgets.dart';
 import 'package:mentalease_2/core/services/api_service.dart'; // Import the ApiService
+import 'package:mentalease_2/features/signup/signup_details_page.dart';
 
 class SignUpArea extends StatefulWidget {
-  // Change to StatefulWidget
-  SignUpArea({super.key});
+  const SignUpArea({super.key});
 
   @override
   _SignUpAreaState createState() => _SignUpAreaState();
@@ -16,9 +15,6 @@ class _SignUpAreaState extends State<SignUpArea> {
   final ApiService _apiService = ApiService();
 
   // Controllers...
-  final TextEditingController _lnameController = TextEditingController();
-  final TextEditingController _fnameController = TextEditingController();
-  final TextEditingController _mnameController = TextEditingController();
   final TextEditingController _studIDController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -29,9 +25,6 @@ class _SignUpAreaState extends State<SignUpArea> {
     if (_formKey.currentState!.validate()) {
       // Prepare user data
       Map<String, dynamic> userData = {
-        'lname': _lnameController.text.trim(),
-        'fname': _fnameController.text.trim(),
-        'mname': _mnameController.text.trim(),
         'studID': _studIDController.text.trim(),
         'email': _emailController.text.trim(),
         'password': _passwordController.text.trim(),
@@ -46,10 +39,11 @@ class _SignUpAreaState extends State<SignUpArea> {
           SnackBar(content: Text(response['message'])),
         );
 
-        // Navigate to HomeArea
+        // Navigate to SignUpDetailsPage
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeArea()),
+          MaterialPageRoute(
+              builder: (context) => SignUpDetailsPage(apiService: _apiService)),
         );
       } else {
         // Show error message
@@ -73,45 +67,6 @@ class _SignUpAreaState extends State<SignUpArea> {
           key: _formKey,
           child: Column(
             children: [
-              customTextFormField(
-                controller: _lnameController,
-                labelText: "Last Name",
-                hintText: "Enter Last Name",
-                prefixIcon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your last name';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
-              customTextFormField(
-                controller: _fnameController,
-                labelText: "First Name",
-                hintText: "Enter First Name",
-                prefixIcon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your first name';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
-              customTextFormField(
-                controller: _mnameController,
-                labelText: "Middle Name",
-                hintText: "Enter Middle Name",
-                prefixIcon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your middle name';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
               customTextFormField(
                 controller: _studIDController,
                 labelText: "Student ID",

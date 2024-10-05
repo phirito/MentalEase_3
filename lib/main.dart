@@ -7,6 +7,8 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('moodBox');
   await Hive.openBox('sessionBox');
+  await Hive.openBox('meditationBox');
+  await Hive.openBox('toDoBox');
 
   runApp(const MyApp());
 }

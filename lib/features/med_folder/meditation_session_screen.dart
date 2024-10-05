@@ -32,7 +32,6 @@ class MeditationSessionPage extends StatelessWidget {
                 };
                 await _meditationManager.saveSessionHistory(session);
                 onComplete();
-                Navigator.pop(context);
               },
             ),
           ],

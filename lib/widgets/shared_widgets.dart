@@ -18,7 +18,6 @@ PageRouteBuilder createPageTransition(Widget page) {
   );
 }
 
-// file: lib/widgets/text_form_field_widget.dart
 Widget customTextFormField({
   required TextEditingController controller,
   required String labelText,
@@ -63,6 +62,10 @@ Widget buildTextField({
       labelText: labelText,
       prefixIcon: Icon(icon, color: const Color.fromARGB(255, 116, 8, 0)),
       border: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color.fromARGB(255, 116, 8, 0)),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      focusedBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Color.fromARGB(255, 116, 8, 0)),
         borderRadius: BorderRadius.circular(15),
       ),

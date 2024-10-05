@@ -7,15 +7,19 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+// Import the timezone packages
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
 class MoodTracker extends StatefulWidget {
   final bool showGreeting;
   final Function(String) updateMoodOfTheDay;
 
   const MoodTracker({
-    super.key,
+    Key? key,
     this.showGreeting = true,
     required this.updateMoodOfTheDay,
-  });
+  }) : super(key: key);
 
   @override
   _MoodTrackerState createState() => _MoodTrackerState();
@@ -56,8 +60,8 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _loadMoodData() async {
-    await _moodTrackerManager.loadMoodOfTheDay();
-    var box = await Hive.openBox('moodBox');
+    _moodTrackerManager.loadMoodOfTheDay();
+    var box = Hive.box('moodBox'); // Use already opened box
     setState(() {
       _moodHistory = List<Map<String, String>>.from(
           box.get('moodHistory', defaultValue: []));
@@ -67,41 +71,56 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _saveMoodData() async {
-    var box = await Hive.openBox('moodBox');
+    var box = Hive.box('moodBox'); // Use already opened box
     await box.put('moodHistory', _moodHistory);
     await box.put('moodStats', _moodStats);
   }
 
   void _initializeNotifications() async {
+    // Initialize the Timezone database
+    tz.initializeTimeZones();
+
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    const InitializationSettings initializationSettings =
+        AndroidInitializationSettings(
+            '@mipmap/ic_launcher'); // Adjust icon name if necessary
+    final InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
     _scheduleDailyReminder();
   }
 
   void _scheduleDailyReminder() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'mood_reminder_channel',
-      'Daily Mood Reminder',
-      channelDescription: 'Reminder to log your daily mood',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.showDailyAtTime(
+    await flutterLocalNotificationsPlugin.zonedSchedule(
       0,
       'Mood Reminder',
       'Don\'t forget to log your mood today!',
-      const Time(9, 0, 0),
-      platformChannelSpecifics,
+      _nextInstanceOfTime(11, 44, 0), // Schedule at 9 PM
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'mood_reminder_channel',
+          'Daily Mood Reminder',
+          channelDescription: 'Reminder to log your daily mood',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.wallClockTime,
+      matchDateTimeComponents: DateTimeComponents.time,
     );
+  }
+
+  tz.TZDateTime _nextInstanceOfTime(int hour, int minutes, int seconds) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+        tz.local, now.year, now.month, now.day, hour, minutes, seconds);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
   }
 
   void _addMoodToHistory(String mood) {
@@ -117,7 +136,7 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _saveMoodOfTheDay(String mood) async {
-    var box = await Hive.openBox('moodBox');
+    var box = Hive.box('moodBox'); // Use already opened box
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     await box.put('moodOfTheDay', mood);
@@ -129,7 +148,7 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _loadMoodOfTheDay() async {
-    var box = await Hive.openBox('moodBox');
+    var box = Hive.box('moodBox'); // Use already opened box
     String? savedMood = box.get('moodOfTheDay');
     String? savedDate = box.get('moodDate');
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -176,7 +195,7 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _saveMoodNote(String note) async {
-    var box = await Hive.openBox('moodBox');
+    var box = Hive.box('moodBox'); // Use already opened box
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     await box.put('moodNote_$today', note);
   }
@@ -187,7 +206,7 @@ class _MoodTrackerState extends State<MoodTracker> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
-        } else if (snapshot.hasData) {
+        } else if (snapshot.hasData && snapshot.data != null) {
           return Text(
             'Note: ${snapshot.data}',
             style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic),
@@ -200,7 +219,7 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<String?> _getMoodNote() async {
-    var box = await Hive.openBox('moodBox');
+    var box = Hive.box('moodBox'); // Use already opened box
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return box.get('moodNote_$today');
   }
@@ -346,11 +365,8 @@ class _MoodTrackerState extends State<MoodTracker> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.showGreeting)
-                Center(
-                    child:
-                        _buildGreetingWidget(mediaQuery)), // Greeting centered
-              SizedBox(
-                  height: mediaQuery.size.height * 0.03), // Adjusted spacing
+                Center(child: _buildGreetingWidget(mediaQuery)),
+              SizedBox(height: mediaQuery.size.height * 0.03),
 
               // Mood Selection Grid
               _buildSectionHeader("Select Your Mood", mediaQuery),
@@ -441,25 +457,28 @@ class _MoodTrackerState extends State<MoodTracker> {
       style: TextStyle(fontSize: mediaQuery.size.width * 0.06),
     );
   }
-}
 
-_buildSectionHeader(String title, MediaQueryData mediaQuery) {
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: mediaQuery.size.height * 0.01),
-    child: Text(
-      title,
-      style: TextStyle(
-        fontSize: mediaQuery.size.width * 0.06,
-        fontWeight: FontWeight.bold,
+  Widget _buildSectionHeader(String title, MediaQueryData mediaQuery) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: mediaQuery.size.height * 0.01),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: mediaQuery.size.width * 0.06,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.start,
       ),
-      textAlign: TextAlign.start,
-    ),
-  );
+    );
+  }
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await Hive.openBox('moodBox');
   runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
     home: MoodTracker(
       updateMoodOfTheDay: (mood) {},
     ),

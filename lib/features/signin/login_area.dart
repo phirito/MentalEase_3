@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
+import 'package:mentalease_2/features/signin/forgotpass.dart';
 import 'package:mentalease_2/features/signup/signup_area.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
+import 'package:mentalease_2/widgets/shared_widgets.dart';
 
 class LoginForm extends StatefulWidget {
   final ApiService apiService;
   final GlobalKey<FormState> formKey;
 
   const LoginForm({
-    Key? key,
+    super.key,
     required this.apiService,
     required this.formKey,
-  }) : super(key: key);
+  });
 
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -56,31 +58,6 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String labelText,
-    required IconData icon,
-    bool obscureText = false,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: labelText,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $labelText';
-        }
-        return null;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -88,17 +65,31 @@ class _LoginFormState extends State<LoginForm> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildTextField(
+          customTextFormField(
             controller: _usernameController,
             labelText: 'Username',
-            icon: Icons.person,
+            hintText: 'Enter your username',
+            prefixIcon: Icons.person,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your Username';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16.0),
-          _buildTextField(
+          customTextFormField(
             controller: _passwordController,
             labelText: 'Password',
-            icon: Icons.lock,
+            hintText: 'Enter your password',
+            prefixIcon: Icons.lock,
             obscureText: true,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your Password';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 32.0),
           Row(
@@ -121,8 +112,7 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 16.0),
           ElevatedButton(
-            onPressed:
-                _isAgreementChecked ? _login : null, // Disable if unchecked
+            onPressed: _isAgreementChecked ? _login : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
@@ -141,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
           TextButton(
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return SignUpArea();
+                return const SignUpArea();
               }));
             },
             style: TextButton.styleFrom(
@@ -153,6 +143,21 @@ class _LoginFormState extends State<LoginForm> {
             child: const Text(
               "Sign-Up",
               style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const ForgotPasswordPage();
+              }));
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color.fromARGB(255, 116, 8, 0),
+            ),
+            child: const Text(
+              "Forgot Password?",
+              style: TextStyle(decoration: TextDecoration.underline),
             ),
           ),
         ],

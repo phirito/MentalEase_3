@@ -1,6 +1,8 @@
+//meditate_area.dart
 import 'package:flutter/material.dart';
-import 'package:mentalease_2/features/med_folder/meditation_session_page.dart';
-import 'package:mentalease_2/features/med_folder/session_history_page.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:mentalease_2/features/med_folder/meditation_session_screen.dart';
+import 'package:mentalease_2/features/med_folder/session_history_screen.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 
 class MeditateArea extends StatefulWidget {
@@ -14,13 +16,12 @@ class MeditateArea extends StatefulWidget {
 
 class _MeditateAreaState extends State<MeditateArea> {
   final MeditationManager _meditationManager = MeditationManager();
-  int _selectedDuration = 10; // Default duration
+  int _selectedDuration = 600; // Default duration in seconds (10 minutes)
   List<Map<String, dynamic>> _sessionHistory = [];
 
   @override
   void initState() {
     super.initState();
-
     _loadSessionHistory(); // Load the meditation status and session history
   }
 
@@ -43,19 +44,6 @@ class _MeditateAreaState extends State<MeditateArea> {
     await _meditationManager.saveSessionHistory(session);
     await _loadSessionHistory(); // Reload the updated session history
     widget.updateMeditationStatus(true);
-  }
-
-  void _increaseDuration() {
-    setState(() => _selectedDuration += 30); // Increase by 30 seconds
-  }
-
-  void _decreaseDuration() {
-    setState(() {
-      if (_selectedDuration > 30) {
-        _selectedDuration -=
-            30; // Decrease by 30 seconds, minimum is 30 seconds
-      }
-    });
   }
 
   Widget _buildContainerButton(
@@ -89,54 +77,66 @@ class _MeditateAreaState extends State<MeditateArea> {
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          // Use StatefulBuilder to manage state within the dialog
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              title: const Text("Customize Duration"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {
-                          setStateDialog(() {
-                            // Use setStateDialog to update the dialog's state
-                            _decreaseDuration();
-                          });
-                        },
-                      ),
-                      Text(
-                          "${_selectedDuration ~/ 60} min ${_selectedDuration % 60} sec"),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          setStateDialog(() {
-                            // Use setStateDialog to update the dialog's state
-                            _increaseDuration();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: const Text(
-                    "OK",
-                    style: TextStyle(color: Color.fromARGB(255, 128, 0, 0)),
+        Duration tempDuration = Duration(seconds: _selectedDuration);
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          child: SizedBox(
+            height: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    "Customize Duration",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
+                // Timer Picker
+                Expanded(
+                  child: CupertinoTimerPicker(
+                    mode: CupertinoTimerPickerMode.ms,
+                    initialTimerDuration: tempDuration,
+                    onTimerDurationChanged: (Duration newDuration) {
+                      setState(() {
+                        tempDuration = newDuration;
+                      });
+                    },
+                  ),
+                ),
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 194, 194, 194)),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedDuration = tempDuration.inSeconds;
+                        });
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Color.fromARGB(255, 114, 0, 0)),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-            );
-          },
+            ),
+          ),
         );
       },
     );
@@ -164,7 +164,7 @@ class _MeditateAreaState extends State<MeditateArea> {
     );
   }
 
-  Widget _buildMeditationHistory() {
+  Widget buildMeditationHistory() {
     if (_sessionHistory.isEmpty) {
       return const Text('No meditation sessions recorded');
     }
@@ -175,7 +175,8 @@ class _MeditateAreaState extends State<MeditateArea> {
       itemBuilder: (context, index) {
         final session = _sessionHistory[index];
         return ListTile(
-          title: Text('Duration: ${session['duration']} minutes'),
+          title: Text(
+              'Duration: ${Duration(seconds: session['duration']).inMinutes} minutes'),
           subtitle: Text('Time: ${session['time'].toString()}'),
         );
       },
@@ -184,6 +185,10 @@ class _MeditateAreaState extends State<MeditateArea> {
 
   @override
   Widget build(BuildContext context) {
+    // Display the selected duration in minutes and seconds
+    final selectedMinutes = _selectedDuration ~/ 60;
+    final selectedSeconds = _selectedDuration % 60;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -198,6 +203,12 @@ class _MeditateAreaState extends State<MeditateArea> {
               fit: BoxFit.cover, // Adjust the image to cover the area
             ),
             const SizedBox(height: 20), // Add some spacing after the image
+            // Display the currently selected duration
+            Text(
+              'Selected Duration: $selectedMinutes min $selectedSeconds sec',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
             _buildContainerButton(
               "Customize Time",
               Icons.timer,
