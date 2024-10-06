@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  mongo_dart: ^0.10.3
   cupertino_icons: ^1.0.6
   animated_bottom_navigation_bar: ^1.0.0+2
   flashy_tab_bar2: ^0.0.10

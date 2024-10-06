@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mentalease_2/features/home/home_manager/journal_manager.dart';
 
 class JournalingArea extends StatefulWidget {
   final Function(String) addToDoCallback;
-  final Function(String)
-      removeToDoCallback; // Callback to remove chores from HomeArea
+  final Function(String) removeToDoCallback;
 
-  const JournalingArea(
-      {super.key,
-      required this.addToDoCallback,
-      required this.removeToDoCallback});
+  const JournalingArea({
+    super.key,
+    required this.addToDoCallback,
+    required this.removeToDoCallback,
+  });
 
   @override
   _JournalingAreaState createState() => _JournalingAreaState();
@@ -17,18 +18,19 @@ class JournalingArea extends StatefulWidget {
 class _JournalingAreaState extends State<JournalingArea> {
   final TextEditingController _journalController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  final List<String> _journalEntries = [];
-  final List<String> _chores = [];
-  final List<bool> _choresDone = [];
-  final PageController _pageController = PageController();
+  late JournalManager _journalManager;
 
-  // Add Journal Entry
-  void _addJournalEntry() {
+  @override
+  void initState() {
+    super.initState();
+    _journalManager = JournalManager();
+  }
+
+  void _addJournalEntry() async {
     if (_journalController.text.isNotEmpty) {
-      setState(() {
-        _journalEntries.insert(0, _journalController.text);
-        _journalController.clear();
-      });
+      await _journalManager.addJournalEntry(_journalController.text);
+      _journalController.clear();
+      setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Entry Successful! Swipe to left <--'),
@@ -38,67 +40,70 @@ class _JournalingAreaState extends State<JournalingArea> {
     }
   }
 
-  // Add Chore/Note
-  void _addChore(String chore) {
-    setState(() {
-      _chores.add(chore);
-      _choresDone.add(false);
-      widget.addToDoCallback(chore); // Call the callback to update HomeArea
-    });
-    _noteController.clear();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Note added successfully!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _addChore() async {
+    if (_noteController.text.isNotEmpty) {
+      await _journalManager.addChore(_noteController.text);
+      widget.addToDoCallback(_noteController.text);
+      _noteController.clear();
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Note added successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
-  // Toggle To-Do item as done/undone
-  void _toggleChoreDone(int index) {
-    setState(() {
-      _choresDone[index] = !_choresDone[index];
-    });
+  void _toggleChoreDone(int index) async {
+    await _journalManager.toggleChoreStatus(index);
+    setState(() {});
 
-    if (_choresDone[index]) {
+    if (_journalManager.loadChores()[index]['done']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Task marked as done! Removing in 3 seconds...'),
           duration: Duration(seconds: 2),
         ),
       );
-      Future.delayed(const Duration(seconds: 3), () {
-        setState(() {
-          widget.removeToDoCallback(_chores[index]); // Remove from HomeArea
-          _chores.removeAt(index);
-          _choresDone.removeAt(index);
-        });
+      Future.delayed(const Duration(seconds: 3), () async {
+        await _journalManager.deleteChore(index);
+        widget
+            .removeToDoCallback(_journalManager.loadChores()[index]['content']);
+        setState(() {});
       });
     }
   }
 
-  // Delete a Chore
-  void _deleteChore(int index) {
-    setState(() {
-      widget.removeToDoCallback(
-          _chores[index]); // Call the callback to remove from HomeArea
-      _chores.removeAt(index);
-      _choresDone.removeAt(index);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Task deleted!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    });
+  void _deleteChore(int index) async {
+    String chore = _journalManager.loadChores()[index]['content'];
+    await _journalManager.deleteChore(index);
+    widget.removeToDoCallback(chore);
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Task deleted!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _deleteJournalEntry(int index) async {
+    await _journalManager.deleteJournalEntry(index);
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Journal entry deleted!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        controller: _pageController,
+        controller: PageController(),
         children: [
           _buildJournalEntryPage(),
           _buildJournalHistoryPage(),
@@ -108,6 +113,7 @@ class _JournalingAreaState extends State<JournalingArea> {
   }
 
   Widget _buildJournalEntryPage() {
+    List<Map<String, dynamic>> chores = _journalManager.loadChores();
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -150,11 +156,7 @@ class _JournalingAreaState extends State<JournalingArea> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {
-              if (_noteController.text.isNotEmpty) {
-                _addChore(_noteController.text);
-              }
-            },
+            onPressed: _addChore,
             child: const Text(
               "Add Note",
               style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),
@@ -170,19 +172,19 @@ class _JournalingAreaState extends State<JournalingArea> {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _chores.length,
+            itemCount: chores.length,
             itemBuilder: (context, index) {
               return ListTile(
                 leading: Checkbox(
-                  value: _choresDone[index],
+                  value: chores[index]['done'],
                   onChanged: (bool? value) {
                     _toggleChoreDone(index);
                   },
                 ),
                 title: Text(
-                  _chores[index],
+                  chores[index]['content'],
                   style: TextStyle(
-                    decoration: _choresDone[index]
+                    decoration: chores[index]['done']
                         ? TextDecoration.lineThrough
                         : TextDecoration.none,
                   ),
@@ -201,8 +203,8 @@ class _JournalingAreaState extends State<JournalingArea> {
     );
   }
 
-  // Journal History Page
   Widget _buildJournalHistoryPage() {
+    List<Map<String, dynamic>> history = _journalManager.loadJournalHistory();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Journal History"),
@@ -210,14 +212,22 @@ class _JournalingAreaState extends State<JournalingArea> {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        itemCount: _journalEntries.length,
+        itemCount: history.length,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(_journalEntries[index]),
+              child: ListTile(
+                title: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(history[index]['content']),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    _deleteJournalEntry(history[index]['index']);
+                  },
+                ),
               ),
             ),
           );

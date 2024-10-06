@@ -7,6 +7,7 @@ import 'package:mentalease_2/features/home/home_widgets/home_content_widgets.dar
 import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
+import 'package:hive/hive.dart';
 
 class HomeArea extends StatefulWidget {
   const HomeArea({super.key});
@@ -18,8 +19,6 @@ class HomeArea extends StatefulWidget {
 class _HomeAreaState extends State<HomeArea> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-
-  // Use shared instances of managers to ensure that state is consistent across pages
   final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
   final MeditationManager _meditationManager = MeditationManager();
   final ToDoManager _toDoManager = ToDoManager();
@@ -79,6 +78,11 @@ class _HomeAreaState extends State<HomeArea> {
     String today = DateTime.now().toIso8601String().split('T').first;
     String? moodToday = _moodTrackerManager.getMood(today);
 
+    List<String> _loadToDoList() {
+      Box journalBox = Hive.box('journalingBox');
+      return journalBox.values.cast<String>().toList();
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -96,6 +100,9 @@ class _HomeAreaState extends State<HomeArea> {
           ],
         ),
         backgroundColor: const Color.fromARGB(255, 116, 8, 0),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
       ),
       endDrawer: Drawer(
         child: ListView(
@@ -173,26 +180,31 @@ class _HomeAreaState extends State<HomeArea> {
           ],
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        children: <Widget>[
-          buildHomeContent(
-            moodOfTheDay: _moodTrackerManager.moodOfTheDay,
-            toDoList: _toDoManager.toDoList,
-            hasMeditatedToday: _meditationManager.hasMeditatedToday,
-          ),
-          MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
-          MeditateArea(updateMeditationStatus: _updateMeditationStatus),
-          JournalingArea(
-            addToDoCallback: _addToDoItem,
-            removeToDoCallback: _removeToDoItem,
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh:
+            _loadData, // This function will be triggered on pull-to-refresh
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: <Widget>[
+            buildHomeContent(
+              moodOfTheDay: _moodTrackerManager.moodOfTheDay,
+              toDoList: _toDoManager.toDoList,
+              hasMeditatedToday: _meditationManager.hasMeditatedToday,
+              onRefresh: _loadData,
+            ),
+            MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
+            MeditateArea(updateMeditationStatus: _updateMeditationStatus),
+            JournalingArea(
+              addToDoCallback: _addToDoItem,
+              removeToDoCallback: _removeToDoItem,
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: FlashyTabBar(
         selectedIndex: _selectedIndex,

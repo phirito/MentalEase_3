@@ -8,6 +8,7 @@ void main() async {
   await Hive.openBox('moodBox');
   await Hive.openBox('sessionBox');
   await Hive.openBox('meditationBox');
+  await Hive.openBox('journalingBox');
   await Hive.openBox('toDoBox');
 
   runApp(const MyApp());

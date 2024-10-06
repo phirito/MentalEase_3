@@ -6,8 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
-// Import the timezone packages
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -83,7 +81,7 @@ class _MoodTrackerState extends State<MoodTracker> {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings(
             '@mipmap/ic_launcher'); // Adjust icon name if necessary
-    final InitializationSettings initializationSettings =
+    const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -96,7 +94,7 @@ class _MoodTrackerState extends State<MoodTracker> {
       0,
       'Mood Reminder',
       'Don\'t forget to log your mood today!',
-      _nextInstanceOfTime(11, 44, 0), // Schedule at 9 PM
+      _nextInstanceOfTime(6, 00, 0),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'mood_reminder_channel',
@@ -161,7 +159,7 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _addMoodNoteDialog() async {
-    TextEditingController _noteController = TextEditingController();
+    TextEditingController noteController = TextEditingController();
 
     return showDialog(
       context: context,
@@ -169,7 +167,7 @@ class _MoodTrackerState extends State<MoodTracker> {
         return AlertDialog(
           title: const Text("Add a note"),
           content: TextField(
-            controller: _noteController,
+            controller: noteController,
             decoration: const InputDecoration(
               hintText: "Why are you feeling this way?",
             ),
@@ -183,7 +181,7 @@ class _MoodTrackerState extends State<MoodTracker> {
             ),
             TextButton(
               onPressed: () {
-                _saveMoodNote(_noteController.text);
+                _saveMoodNote(noteController.text);
                 Navigator.of(context).pop();
               },
               child: const Text("Save"),
