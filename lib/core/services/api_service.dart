@@ -1,55 +1,65 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiService {
   static const String baseUrl =
-      'https://mentalease.ccsdepartment.com/MentalEase_Database/api.php/api/quotes/'; // Replace with your server address
-  Future<String> fetchQuoteForDay(String day) async {
-    final response = await http.get(
-      Uri.parse(
-          'https://mentalease.ccsdepartment.com/MentalEase_Database/api.php/api/quotes/$day'),
-    );
+      'https://mentalease.ccsdepartment.com/MentalEase_Database/api.php';
 
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      return jsonData['quotes'] ?? 'No quote available';
-    } else {
-      throw Exception('Failed to load quote');
-    }
-  }
+  final SupabaseClient _client = Supabase.instance.client;
 
-  Future<void> updateMoodTracker(String day, String mood) async {
-    final response = await http.put(
-      Uri.parse(
-          'https://mentalease.ccsdepartment.com/MentalEase_Database/api.php/api/mood/$day'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'mood': mood,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print("Mood updated successfully");
-    } else {
-      throw Exception('Failed to update mood');
+  // Method to insert user data into 'users' table
+  Future<void> insertUserData(Map<String, dynamic> userData) async {
+    try {
+      await _client.from('users').insert(userData);
+      // If the operation succeeds, no exception is thrown
+      print('Insert Success');
+    } catch (e) {
+      // Handle exceptions
+      print('Insert Error: $e');
+      rethrow; // Re-throw the exception to handle it elsewhere if needed
     }
   }
 
   // Sign-Up
-  Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData) async {
-    final url = Uri.parse('$baseUrl/signup');
+  Future<AuthResponse> signUp(String email, String idNumber) async {
+    try {
+      final response = await _client.auth.signUp(
+        email: email,
+        password: idNumber,
+      );
+      return response;
+    } catch (e) {
+      print('Sign-Up Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyCode(
+      Map<String, dynamic> verificationData) async {
+    final url = Uri.parse('$baseUrl/verify');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(userData),
+      body: jsonEncode(verificationData),
     );
 
     return jsonDecode(response.body);
   }
 
-  // Sign-In
+  // Sign-Up
+  // Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData) async {
+  //   final url = Uri.parse('$baseUrl'); // This should call your `signupapi.php`
+  //   final response = await http.post(
+  //     url,
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: jsonEncode(userData),
+  //   );
+
+  //   return jsonDecode(response.body);
+  // }
+
+  //Sign-In
   Future<Map<String, dynamic>> signIn(Map<String, dynamic> credentials) async {
     final url = Uri.parse('$baseUrl/signin');
     final response = await http.post(
@@ -59,5 +69,37 @@ class ApiService {
     );
 
     return jsonDecode(response.body);
+  }
+
+  // Get Quote of the Day
+  Future<String> getQuoteOfTheDay() async {
+    // Get the current weekday name (Sunday, Monday, etc.)
+    final weekday = DateTime.now().weekday;
+
+    final dayNames = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday'
+    ];
+    final day = dayNames[weekday % 7]; // Get current day name
+
+    // Construct URL for the API request
+    final url = Uri.parse('$baseUrl/api/quotes/$day');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['quotes'] ?? 'No quote available for today.';
+      } else {
+        return 'Error fetching quote: ${response.statusCode}';
+      }
+    } catch (e) {
+      return 'Error fetching quote: $e';
+    }
   }
 }

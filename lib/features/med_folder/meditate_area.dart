@@ -190,7 +190,7 @@ class _MeditateAreaState extends State<MeditateArea> {
     final selectedSeconds = _selectedDuration % 60;
 
     return Scaffold(
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

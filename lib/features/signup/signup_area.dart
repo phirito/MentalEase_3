@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
-import 'package:mentalease_2/core/services/api_service.dart'; // Import the ApiService
+import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/features/signup/signup_details_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpArea extends StatefulWidget {
   const SignUpArea({super.key});
@@ -17,38 +18,71 @@ class _SignUpAreaState extends State<SignUpArea> {
   // Controllers...
   final TextEditingController _studIDController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+
+  // Method to check if the student ID exists in the database
+  Future<bool> _isStudentInDatabase(String studentID) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('id_number')
+          .eq('id_number', studentID)
+          .maybeSingle();
+
+      return response != null;
+    } catch (e) {
+      print('Error checking student ID: $e');
+      return false;
+    }
+  }
 
   void _signup(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      // Prepare user data
-      Map<String, dynamic> userData = {
-        'studID': _studIDController.text.trim(),
-        'email': _emailController.text.trim(),
-        'password': _passwordController.text.trim(),
-      };
+      bool isStudentInDB =
+          await _isStudentInDatabase(_studIDController.text.trim());
 
-      // Call the API
-      var response = await _apiService.signUp(userData);
-
-      if (response['status'] == 'success') {
-        // Show success message
+      if (!isStudentInDB) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'])),
+          const SnackBar(
+              content: Text('Student ID not found in the database.')),
         );
+        return; // Stop further processing if student ID is not found
+      }
 
-        // Navigate to SignUpDetailsPage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SignUpDetailsPage(apiService: _apiService)),
+      try {
+        // Proceed with email sign-up
+        final AuthResponse response =
+            await Supabase.instance.client.auth.signUp(
+          email: _emailController.text.trim(),
+          password: '', // Optionally, handle password input as needed
         );
-      } else {
-        // Show error message
+        if (response.user != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Sign-Up successful! Please verify your email.')),
+          );
+
+          if (response.user!.emailConfirmedAt != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpDetailsPage(
+                  apiService: _apiService,
+                  idNumber: _studIDController.text.trim(),
+                ),
+              ),
+            );
+          }
+        } else {
+          // Sign-Up failed
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Sign-Up failed. Please try again later.')),
+          );
+        }
+      } catch (e) {
+        // Handle unexpected errors
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'])),
+          SnackBar(content: Text('An unexpected error occurred: $e')),
         );
       }
     }
@@ -67,12 +101,20 @@ class _SignUpAreaState extends State<SignUpArea> {
           key: _formKey,
           child: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child: Image.asset(
+                  "assets/images/mentalease_logo.png",
+                  width: 200,
+                  height: 200,
+                ),
+              ),
               customTextFormField(
                 controller: _studIDController,
                 labelText: "Student ID",
                 hintText: "Enter Student ID",
                 prefixIcon: Icons.school,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text, // Changed to text
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your student ID';
@@ -97,43 +139,20 @@ class _SignUpAreaState extends State<SignUpArea> {
                 },
               ),
               vSpacer(10),
-              customTextFormField(
-                controller: _passwordController,
-                labelText: "Password",
-                hintText: "Enter password",
-                prefixIcon: Icons.lock,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
-              customTextFormField(
-                controller: _confirmPasswordController,
-                labelText: "Confirm Password",
-                hintText: "Confirm password",
-                prefixIcon: Icons.lock,
-                obscureText: true,
-                validator: (value) {
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _signup(context), // Pass context to _signup
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 107, 0, 0),
+                  foregroundColor: const Color.fromARGB(255, 97, 0, 0),
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(15),
                   ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 5),
                 ),
-                child: const Text("Sign-Up"),
+                child: const Text(
+                  "Sign-Up",
+                ),
               ),
             ],
           ),

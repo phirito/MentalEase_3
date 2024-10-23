@@ -17,6 +17,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
+  bool _isAgreementChecked = false; // Checkbox state management
 
   @override
   Widget build(BuildContext context) {
@@ -38,24 +39,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 const UserAgreementPage(),
-                Container(
-                  width: 320,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 249, 251, 255),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color.fromARGB(104, 121, 121, 121)
-                            .withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _isAgreementChecked,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _isAgreementChecked = value ?? false;
+                          if (_isAgreementChecked) {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return LoginForm(
+                                  apiService: _apiService, formKey: _formKey);
+                            }));
+                          }
+                        });
+                      },
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'I accept the Disclaimer & User Agreement ',
+                        style: TextStyle(fontSize: 15.0),
                       ),
-                    ],
-                  ),
-                  child: LoginForm(apiService: _apiService, formKey: _formKey),
+                    ),
+                  ],
                 ),
                 TextButton(
                   onPressed: () {
@@ -64,12 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       return const HomeArea();
                     }));
                   },
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
                   child: const Text(
                     "Continue as Guest",
                     style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),

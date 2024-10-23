@@ -11,8 +11,11 @@ class JournalManager {
   List<Map<String, dynamic>> loadJournalEntries() {
     List<Map<String, dynamic>> entries = [];
     for (int i = 0; i < _journalBox.length; i++) {
-      final item = _journalBox.getAt(i) as Map<String, dynamic>;
-      entries.add({'index': i, ...item});
+      final item = _journalBox.getAt(i);
+      if (item is Map) {
+        final Map<String, dynamic> entry = Map<String, dynamic>.from(item);
+        entries.add({'index': i, ...entry});
+      }
     }
     return entries;
   }
@@ -29,26 +32,38 @@ class JournalManager {
 
   // Toggle the completion status of a chore
   Future<void> toggleChoreStatus(int index) async {
-    final item = _journalBox.getAt(index) as Map<String, dynamic>;
-    if (item['type'] == 'chore') {
-      await _journalBox.putAt(index,
-          {'type': 'chore', 'content': item['content'], 'done': !item['done']});
+    final item = _journalBox.getAt(index);
+    if (item is Map) {
+      final Map<String, dynamic> chore = Map<String, dynamic>.from(item);
+      if (chore['type'] == 'chore') {
+        await _journalBox.putAt(index, {
+          'type': 'chore',
+          'content': chore['content'],
+          'done': !(chore['done'] as bool),
+        });
+      }
     }
   }
 
   // Delete a journal entry
   Future<void> deleteJournalEntry(int index) async {
-    final item = _journalBox.getAt(index) as Map<String, dynamic>;
-    if (item['type'] == 'journal') {
-      await _journalBox.deleteAt(index);
+    final item = _journalBox.getAt(index);
+    if (item is Map) {
+      final Map<String, dynamic> entry = Map<String, dynamic>.from(item);
+      if (entry['type'] == 'journal') {
+        await _journalBox.deleteAt(index);
+      }
     }
   }
 
   // Delete a chore
   Future<void> deleteChore(int index) async {
-    final item = _journalBox.getAt(index) as Map<String, dynamic>;
-    if (item['type'] == 'chore') {
-      await _journalBox.deleteAt(index);
+    final item = _journalBox.getAt(index);
+    if (item is Map) {
+      final Map<String, dynamic> chore = Map<String, dynamic>.from(item);
+      if (chore['type'] == 'chore') {
+        await _journalBox.deleteAt(index);
+      }
     }
   }
 
@@ -56,9 +71,12 @@ class JournalManager {
   List<Map<String, dynamic>> loadChores() {
     List<Map<String, dynamic>> chores = [];
     for (int i = 0; i < _journalBox.length; i++) {
-      final item = _journalBox.getAt(i) as Map<String, dynamic>;
-      if (item['type'] == 'chore') {
-        chores.add({'index': i, ...item});
+      final item = _journalBox.getAt(i);
+      if (item is Map) {
+        final Map<String, dynamic> chore = Map<String, dynamic>.from(item);
+        if (chore['type'] == 'chore') {
+          chores.add({'index': i, ...chore});
+        }
       }
     }
     return chores;
@@ -68,9 +86,12 @@ class JournalManager {
   List<Map<String, dynamic>> loadJournalHistory() {
     List<Map<String, dynamic>> history = [];
     for (int i = 0; i < _journalBox.length; i++) {
-      final item = _journalBox.getAt(i) as Map<String, dynamic>;
-      if (item['type'] == 'journal') {
-        history.add({'index': i, ...item});
+      final item = _journalBox.getAt(i);
+      if (item is Map) {
+        final Map<String, dynamic> entry = Map<String, dynamic>.from(item);
+        if (entry['type'] == 'journal') {
+          history.add({'index': i, ...entry});
+        }
       }
     }
     return history;

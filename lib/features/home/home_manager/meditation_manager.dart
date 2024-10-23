@@ -33,6 +33,7 @@ class MeditationManager {
             })
         .toList();
 
+    // ignore: avoid_print
     print("Session history loaded: $_sessionHistory");
   }
 
@@ -49,6 +50,7 @@ class MeditationManager {
     _sessionHistory.add(session);
     await box.put('sessionHistory', _sessionHistory);
 
+    // ignore: avoid_print
     print("Session history saved: $_sessionHistory");
   }
 }

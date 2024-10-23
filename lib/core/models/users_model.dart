@@ -10,7 +10,7 @@ import 'dart:convert';
 //   } else {
 //     throw Exception('Failed to load users');
 //   }
-// }
+// }MentalEase@2024
 
 Future<String> fetchQuoteForDay(String day) async {
   final response = await http.get(
@@ -39,6 +39,7 @@ Future<void> updateMoodTracker(String day, String mood) async {
   );
 
   if (response.statusCode == 200) {
+    // ignore: avoid_print
     print("Mood updated successfully");
   } else {
     throw Exception('Failed to update mood');

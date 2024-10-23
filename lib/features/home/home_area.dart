@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
+import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dart';
 import 'package:mentalease_2/features/home/home_manager/todo_manager.dart';
 import 'package:mentalease_2/features/home/home_widgets/home_content_widgets.dart';
+import 'package:mentalease_2/features/home/home_widgets/infomation_page.dart';
 import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
+import 'package:mentalease_2/features/signin/login_area.dart';
+import 'package:mentalease_2/features/signup/signup_area.dart';
 import 'package:hive/hive.dart';
 
 class HomeArea extends StatefulWidget {
@@ -22,6 +26,9 @@ class _HomeAreaState extends State<HomeArea> {
   final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
   final MeditationManager _meditationManager = MeditationManager();
   final ToDoManager _toDoManager = ToDoManager();
+
+  final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -76,8 +83,10 @@ class _HomeAreaState extends State<HomeArea> {
   @override
   Widget build(BuildContext context) {
     String today = DateTime.now().toIso8601String().split('T').first;
+    // ignore: unused_local_variable
     String? moodToday = _moodTrackerManager.getMood(today);
 
+    // ignore: unused_element, no_leading_underscores_for_local_identifiers
     List<String> _loadToDoList() {
       Box journalBox = Hive.box('journalingBox');
       return journalBox.values.cast<String>().toList();
@@ -165,9 +174,30 @@ class _HomeAreaState extends State<HomeArea> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.phone_enabled),
-              title: const Text('Contact Us'),
+              title: const Text('Information Page'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const InfomationPage();
+                }));
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.person_2_outlined),
+              title: const Text('Sign-In'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return LoginForm(apiService: _apiService, formKey: _formKey);
+                }));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_2_rounded),
+              title: const Text('Sign-up'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const SignUpArea();
+                }));
               },
             ),
             ListTile(
@@ -181,8 +211,7 @@ class _HomeAreaState extends State<HomeArea> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh:
-            _loadData, // This function will be triggered on pull-to-refresh
+        onRefresh: _loadData,
         child: PageView(
           controller: _pageController,
           onPageChanged: (index) {
@@ -196,12 +225,20 @@ class _HomeAreaState extends State<HomeArea> {
               toDoList: _toDoManager.toDoList,
               hasMeditatedToday: _meditationManager.hasMeditatedToday,
               onRefresh: _loadData,
+              apiService: _apiService, // Pass ApiService to fetch the quote
             ),
-            MoodTracker(updateMoodOfTheDay: _updateMoodOfTheDay),
+            MoodTracker(
+              updateMoodOfTheDay: _updateMoodOfTheDay,
+              moodTrackerManager: _moodTrackerManager,
+            ),
             MeditateArea(updateMeditationStatus: _updateMeditationStatus),
             JournalingArea(
-              addToDoCallback: _addToDoItem,
-              removeToDoCallback: _removeToDoItem,
+              addToDoCallback: (String newToDo) {
+                _addToDoItem(newToDo);
+              },
+              removeToDoCallback: (String toDo) {
+                _removeToDoItem(toDo);
+              },
             ),
           ],
         ),
