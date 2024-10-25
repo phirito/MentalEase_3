@@ -29,7 +29,8 @@ class MoodTrackerManager {
 
   Future<void> loadMoodOfTheDay() async {
     var box = await Hive.openBox('moodBox');
-    _moodOfTheDay = box.get('moodOfTheDay', defaultValue: '');
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _moodOfTheDay = box.get('moodOfTheDay_$today', defaultValue: '');
 
     // Load mood history from Hive
     _moodHistory = List<Map<String, dynamic>>.from(
@@ -38,7 +39,8 @@ class MoodTrackerManager {
 
   Future<void> updateMoodOfTheDay(String selectedMood) async {
     var box = await Hive.openBox('moodBox');
-    await box.put('moodOfTheDay', selectedMood);
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    await box.put('moodOfTheDay_$today', selectedMood);
     _moodOfTheDay = selectedMood;
 
     // Add the selected mood to the mood history with a timestamp
@@ -72,7 +74,7 @@ class MoodTrackerManager {
   }
 
   List<Map<String, dynamic>> getMoodHistoryForCarousel() {
-    return _moodHistory.reversed.take(3).toList(); // Return the last 3 entries
+    return _moodHistory.reversed.take(3).toList();
   }
 
   List<Map<String, dynamic>> getAllMoodHistory() {

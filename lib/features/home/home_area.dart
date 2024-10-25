@@ -30,23 +30,6 @@ class _HomeAreaState extends State<HomeArea> {
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    await _moodTrackerManager.loadMoodOfTheDay();
-    await _meditationManager.checkMeditationStatus();
-    await _toDoManager.loadToDoList(); // Ensure session history is loaded
-
-    // Ensure state update happens after data is fully loaded
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -75,9 +58,25 @@ class _HomeAreaState extends State<HomeArea> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    await _moodTrackerManager.loadMoodOfTheDay();
+    await _meditationManager.checkMeditationStatus();
+    await _toDoManager.loadToDoList();
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -225,7 +224,7 @@ class _HomeAreaState extends State<HomeArea> {
               toDoList: _toDoManager.toDoList,
               hasMeditatedToday: _meditationManager.hasMeditatedToday,
               onRefresh: _loadData,
-              apiService: _apiService, // Pass ApiService to fetch the quote
+              apiService: _apiService,
             ),
             MoodTracker(
               updateMoodOfTheDay: _updateMoodOfTheDay,

@@ -1,6 +1,16 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
+List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
+  List<String> moods = ['Happy', 'Neutral', 'Sad', 'Angry', 'Anxious', 'Tired'];
+  List<FlSpot> spots = [];
+
+  for (int i = 0; i < moods.length; i++) {
+    spots.add(FlSpot(i.toDouble(), moodStats[moods[i]]!.toDouble()));
+  }
+
+  return spots;
+}
 
 Widget buildMoodSelectionGrid(
   BuildContext context,
@@ -26,37 +36,35 @@ Widget buildMoodSelectionGrid(
         itemCount: moods.length,
         itemBuilder: (context, index) {
           final mood = moods[index];
+          final bool isSelectedMood = moodOfTheDay == mood['label'];
+
           return GestureDetector(
             onTap: () {
               if (!isMoodSelected) {
                 handleMoodSelection(mood['label']!, true, mood['label']!);
               }
             },
-            child: Card(
-              color: moodOfTheDay == mood['label']
-                  ? const Color.fromARGB(255, 158, 158, 158)
-                  : const Color.fromARGB(255, 255, 255, 255),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    mood['emoji']!,
-                    style: const TextStyle(fontSize: 30),
-                  ),
-                  Text(mood['label']!),
-                ],
+            child: Opacity(
+              opacity: isMoodSelected ? (isSelectedMood ? 1.0 : 0.5) : 1.0,
+              child: Card(
+                color: isSelectedMood
+                    ? const Color.fromARGB(255, 158, 158, 158)
+                    : const Color.fromARGB(255, 255, 255, 255),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      mood['emoji']!,
+                      style: const TextStyle(fontSize: 30),
+                    ),
+                    Text(mood['label']!),
+                  ],
+                ),
               ),
             ),
           );
         },
       ),
-      if (isMoodSelected)
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-          child: Container(
-            color: Colors.transparent,
-          ),
-        ),
       if (isMoodSelected)
         Column(
           children: [
@@ -99,17 +107,6 @@ Widget buildMoodTrendsGraph(Map<String, int> moodStats) {
       ),
     ),
   );
-}
-
-List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
-  List<String> moods = ['Happy', 'Neutral', 'Sad', 'Angry', 'Anxious', 'Tired'];
-  List<FlSpot> spots = [];
-
-  for (int i = 0; i < moods.length; i++) {
-    spots.add(FlSpot(i.toDouble(), moodStats[moods[i]]!.toDouble()));
-  }
-
-  return spots;
 }
 
 Widget buildShareMoodHistoryButton(Function shareMoodHistory) {

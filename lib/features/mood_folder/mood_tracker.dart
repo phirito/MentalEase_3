@@ -15,10 +15,10 @@ class MoodTracker extends StatefulWidget {
   final Function(String) updateMoodOfTheDay;
 
   const MoodTracker({
-    Key? key,
+    super.key,
     required this.moodTrackerManager,
     required this.updateMoodOfTheDay,
-  }) : super(key: key);
+  });
 
   @override
   _MoodTrackerState createState() => _MoodTrackerState();
@@ -80,6 +80,11 @@ class _MoodTrackerState extends State<MoodTracker> {
     }
   }
 
+  void _shareMoodHistory() {
+    String moodHistoryText = widget.moodTrackerManager.getMoodHistoryAsString();
+    Share.share(moodHistoryText);
+  }
+
   Future<void> saveMoodNoteData(String note) async {
     var box = Hive.box('moodBox');
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -115,11 +120,6 @@ class _MoodTrackerState extends State<MoodTracker> {
         }
       },
     );
-  }
-
-  void _shareMoodHistory() {
-    String moodHistoryText = widget.moodTrackerManager.getMoodHistoryAsString();
-    Share.share(moodHistoryText);
   }
 
   Widget _buildMoodDisplay(MediaQueryData mediaQuery) {
@@ -233,8 +233,6 @@ class _MoodTrackerState extends State<MoodTracker> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: mediaQuery.size.height * 0.03),
-
-              // Mood Selection Grid
               _buildSectionHeader("Select Your Mood", mediaQuery),
               SizedBox(height: mediaQuery.size.height * 0.01),
               buildMoodSelectionGrid(
@@ -249,19 +247,13 @@ class _MoodTrackerState extends State<MoodTracker> {
               // Mood of the day display
               Center(child: _buildMoodDisplay(mediaQuery)),
               SizedBox(height: mediaQuery.size.height * 0.02),
-              // Mood note display (if available)
               Center(child: _buildMoodNoteDisplay()),
               SizedBox(height: mediaQuery.size.height * 0.03),
-              // Mood trends graph (centered and spaced)
-
               Center(child: buildMoodTrendsGraph()),
               SizedBox(height: mediaQuery.size.height * 0.04),
-              // Mood history carousel (centered and spaced)
               _buildSectionHeader("Mood History", mediaQuery),
               Center(child: buildMoodHistoryCarousel()),
               SizedBox(height: mediaQuery.size.height * 0.04),
-
-              // Share button (centered)
               Center(child: buildShareMoodHistoryButton(_shareMoodHistory)),
             ],
           ),

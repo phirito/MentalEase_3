@@ -12,7 +12,7 @@ Widget buildHomeContent({
   return LayoutBuilder(
     builder: (context, constraints) {
       return FutureBuilder<String>(
-        future: apiService.getQuoteOfTheDay(), // Fetch the quote from API
+        future: apiService.getQuoteOfTheDay(),
         builder: (context, snapshot) {
           String quoteText = "Loading quote...";
 
@@ -26,13 +26,10 @@ Widget buildHomeContent({
 
           return Center(
             child: RefreshIndicator(
-              onRefresh:
-                  onRefresh, // This function is called on pull-to-refresh
-              color: const Color.fromARGB(255, 116, 0,
-                  0), // Customize the color of the loading indicator
+              onRefresh: onRefresh,
+              color: const Color.fromARGB(255, 116, 0, 0),
               child: SingleChildScrollView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(), // Allows pull-to-refresh
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
