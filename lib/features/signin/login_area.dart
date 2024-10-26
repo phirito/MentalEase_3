@@ -9,8 +9,8 @@ class LoginForm extends StatefulWidget {
   final ApiService apiService;
   final GlobalKey<FormState> formKey;
 
-  const LoginForm({
-    super.key,
+  LoginForm({
+    key,
     required this.apiService,
     required this.formKey,
   });
@@ -22,6 +22,9 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  // Add a state variable to track password visibility
+  bool _isPasswordVisible = false;
 
   void _login() async {
     if (widget.formKey.currentState!.validate()) {
@@ -85,12 +88,31 @@ class _LoginFormState extends State<LoginForm> {
                 },
               ),
               const SizedBox(height: 16.0),
-              customTextFormField(
+
+              // Password field with eye icon for visibility toggle
+              TextFormField(
                 controller: _passwordController,
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                prefixIcon: Icons.lock,
-                obscureText: true,
+                obscureText: !_isPasswordVisible, // Toggle visibility
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Enter your password',
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your Password';

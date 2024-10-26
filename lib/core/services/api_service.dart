@@ -1,39 +1,48 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:supabase_flutter/supabase_flutter.dart';
 
+//users api
+class ApiServices {
+  static const String baseUrl =
+      'https://mentalease.ccsdepartment.com/MentalEase_Database/users_account/users_api.php'; // New API URL
+
+  // Sign-Up function
+  Future<Map<String, dynamic>> signUp(
+      String idNumber, String email, String password) async {
+    final url = Uri.parse(baseUrl);
+    final response = await http.post(
+      url,
+      body: {
+        'action': 'signup', // Action to trigger sign-up
+        'id_number': idNumber,
+        'email': email,
+        'password': password,
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Sign-In function
+  Future<Map<String, dynamic>> signIn(String email, String password) async {
+    final url = Uri.parse(baseUrl);
+    final response = await http.post(
+      url,
+      body: {
+        'action': 'signin', // Action to trigger sign-in
+        'email': email,
+        'password': password,
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
+}
+
+//admin api
 class ApiService {
   static const String baseUrl =
       'https://mentalease.ccsdepartment.com/MentalEase_Database/api.php';
-
-  final SupabaseClient _client = Supabase.instance.client;
-
-  // Method to insert user data into 'users' table
-  Future<void> insertUserData(Map<String, dynamic> userData) async {
-    try {
-      await _client.from('users').insert(userData);
-      // If the operation succeeds, no exception is thrown
-      print('Insert Success');
-    } catch (e) {
-      // Handle exceptions
-      print('Insert Error: $e');
-      rethrow; // Re-throw the exception to handle it elsewhere if needed
-    }
-  }
-
-  // Sign-Up
-  Future<AuthResponse> signUp(String email, String idNumber) async {
-    try {
-      final response = await _client.auth.signUp(
-        email: email,
-        password: idNumber,
-      );
-      return response;
-    } catch (e) {
-      print('Sign-Up Error: $e');
-      rethrow;
-    }
-  }
 
   Future<Map<String, dynamic>> verifyCode(
       Map<String, dynamic> verificationData) async {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/features/signup/signup_details_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpArea extends StatefulWidget {
   const SignUpArea({super.key});
@@ -13,70 +12,51 @@ class SignUpArea extends StatefulWidget {
 
 class _SignUpAreaState extends State<SignUpArea> {
   final _formKey = GlobalKey<FormState>();
-  final ApiService _apiService = ApiService();
+  final ApiServices _apiServices = ApiServices(); // Use the ApiServices class
 
-  // Controllers...
-  final TextEditingController _studIDController = TextEditingController();
+  // Controllers for the input fields
+  final TextEditingController _idnumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  // Method to check if the student ID exists in the database
-  Future<bool> _isStudentInDatabase(String studentID) async {
-    try {
-      final response = await Supabase.instance.client
-          .from('users')
-          .select('id_number')
-          .eq('id_number', studentID)
-          .maybeSingle();
+  // Track the visibility of the password
+  bool _isPasswordVisible = false;
 
-      return response != null;
-    } catch (e) {
-      print('Error checking student ID: $e');
-      return false;
-    }
-  }
-
+  // Function to handle sign-up logic
   void _signup(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      bool isStudentInDB =
-          await _isStudentInDatabase(_studIDController.text.trim());
-
-      if (!isStudentInDB) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Student ID not found in the database.')),
-        );
-        return; // Stop further processing if student ID is not found
-      }
-
       try {
-        // Proceed with email sign-up
-        final AuthResponse response =
-            await Supabase.instance.client.auth.signUp(
-          email: _emailController.text.trim(),
-          password: '', // Optionally, handle password input as needed
+        // Call the ApiServices signUp method
+        var response = await _apiServices.signUp(
+          _idnumberController.text.trim(),
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
         );
-        if (response.user != null) {
+
+        // Handle the response
+        if (response['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('Sign-Up successful! Please verify your email.')),
+              content: Text(
+                  'Sign-Up successful! Your account is pending admin approval.'),
+              duration: Duration(seconds: 8),
+            ),
           );
 
-          if (response.user!.emailConfirmedAt != null) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SignUpDetailsPage(
-                  apiService: _apiService,
-                  idNumber: _studIDController.text.trim(),
-                ),
+          // Navigate to the next page after successful registration
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SignUpDetailsPage(
+                apiService: _apiServices,
+                idNumber: _idnumberController.text.trim(),
               ),
-            );
-          }
+            ),
+          );
         } else {
-          // Sign-Up failed
+          // If the sign-up fails, show the error message
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Sign-Up failed. Please try again later.')),
+            SnackBar(content: Text('Sign-Up failed: ${response['message']}')),
           );
         }
       } catch (e) {
@@ -110,14 +90,14 @@ class _SignUpAreaState extends State<SignUpArea> {
                 ),
               ),
               customTextFormField(
-                controller: _studIDController,
+                controller: _idnumberController,
                 labelText: "Student ID",
                 hintText: "Enter Student ID",
-                prefixIcon: Icons.school,
-                keyboardType: TextInputType.text, // Changed to text
+                prefixIcon: Icons.person,
+                keyboardType: TextInputType.text,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your student ID';
+                    return 'Please enter your student id';
                   }
                   return null;
                 },
@@ -139,8 +119,40 @@ class _SignUpAreaState extends State<SignUpArea> {
                 },
               ),
               vSpacer(10),
+              TextFormField(
+                controller: _passwordController,
+                obscureText:
+                    !_isPasswordVisible, // Toggle obscureText based on visibility
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  hintText: "Enter password",
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              vSpacer(10),
               ElevatedButton(
-                onPressed: () => _signup(context), // Pass context to _signup
+                onPressed: () => _signup(context), // Call the signup function
                 style: ElevatedButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 97, 0, 0),
                   backgroundColor: const Color.fromARGB(255, 255, 255, 255),

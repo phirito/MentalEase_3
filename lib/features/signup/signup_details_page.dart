@@ -1,14 +1,13 @@
-// file: signup_details_page.dart
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:mentalease_2/core/services/api_service.dart';
-import 'package:mentalease_2/features/home/home_area.dart';
+import 'package:mentalease_2/features/signin/login_area.dart'; // Import for login
 import 'package:mentalease_2/widgets/shared_widgets.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpDetailsPage extends StatefulWidget {
-  final ApiService apiService;
+  final ApiServices apiService; // Updated to ApiServices
   final String idNumber;
 
   const SignUpDetailsPage({
@@ -25,16 +24,12 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _lnameController = TextEditingController();
   final TextEditingController _fnameController = TextEditingController();
-  final TextEditingController _mnameController = TextEditingController();
   final TextEditingController _yearlvlController = TextEditingController();
-  final TextEditingController _birthdateController = TextEditingController();
   String? _selectedGender;
 
   bool _isLoading = false;
 
-  // New variable to store the selected date
-  DateTime? _selectedDate;
-
+  // Function to complete the signup process and send data to the backend
   void _completeSignUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -42,66 +37,58 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
       });
 
       try {
-        final Map<String, dynamic> userData = {
+        var url = Uri.parse(
+            'https://mentalease.ccsdepartment.com/MentalEase_Database/users_account/users_api.php');
+        var response = await http.post(url, body: {
+          'action': 'complete_signup', // Action to trigger complete signup
           'id_number': widget.idNumber,
-          'last_name': _lnameController.text.trim(),
           'first_name': _fnameController.text.trim(),
-          'middle_name': _mnameController.text.trim(),
+          'last_name': _lnameController.text.trim(),
           'year_level': _yearlvlController.text.trim(),
-          'birth_date': _selectedDate?.toIso8601String(), // Save as ISO string
-          'gender': _selectedGender,
-        };
+          'gender': _selectedGender, // Include gender
+        });
 
-        // Insert into 'users' table using ApiService
-        await widget.apiService.insertUserData(userData);
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          if (data['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Details saved successfully. Admin will review your account.'),
+                duration: Duration(seconds: 8),
+              ),
+            );
 
-        // Insertion succeeded
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign-up completed successfully.')),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeArea()),
-        );
+            // Redirect to login page after successful signup
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginForm(
+                    apiService: ApiService(), // Pass the ApiService instance
+                    formKey: GlobalKey<FormState>(), // Redirect to LoginForm
+                  ),
+                ));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to save details: ${data['message']}')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Server error. Please try again later.')),
+          );
+        }
       } catch (e) {
-        // Handle exceptions
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save details: $e')),
+          SnackBar(content: Text('An unexpected error occurred: $e')),
         );
       } finally {
         setState(() {
           _isLoading = false;
         });
       }
-    } else {
-      // Form validation failed
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all details.')),
-      );
-    }
-  }
-
-  // New method to show the date picker
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime initialDate =
-        DateTime.now().subtract(const Duration(days: 365 * 15)); // 15 years ago
-    final DateTime firstDate = DateTime(1900);
-    final DateTime lastDate = DateTime.now();
-
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: firstDate,
-      lastDate: lastDate,
-    );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        // Format the selected date and set it to the controller
-        _birthdateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
     }
   }
 
@@ -118,7 +105,6 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
           key: _formKey,
           child: Column(
             children: [
-              // ... [Other form fields remain unchanged]
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                 child: Image.asset(
@@ -156,20 +142,6 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
               ),
               vSpacer(10),
               customTextFormField(
-                controller: _mnameController,
-                labelText: "Middle Name",
-                hintText: "Enter Middle Name",
-                prefixIcon: Icons.person,
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your middle name';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
-              customTextFormField(
                 controller: _yearlvlController,
                 labelText: "Year Level",
                 hintText: "Enter Year Level [7-10]",
@@ -185,27 +157,8 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                 },
               ),
               vSpacer(10),
-              // Birthdate field with date picker
-              TextFormField(
-                controller: _birthdateController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: "Birthdate",
-                  hintText: "Select your birthdate",
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                onTap: () => _selectDate(context),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select your birthdate';
-                  }
-                  return null;
-                },
-              ),
-              vSpacer(10),
+
+              // Gender Dropdown Field
               DropdownButtonFormField<String>(
                 value: _selectedGender,
                 decoration: InputDecoration(
@@ -241,7 +194,9 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
+
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
@@ -256,9 +211,7 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 50, vertical: 5),
                       ),
-                      child: const Text(
-                        "Complete Sign-Up",
-                      ),
+                      child: const Text("Complete Sign-Up"),
                     ),
             ],
           ),

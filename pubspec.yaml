@@ -13,7 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   animated_bottom_navigation_bar: ^1.0.0+2
   flashy_tab_bar2: ^0.0.10
-  http: ^0.13.6
+  http: ^0.13.3
   shared_preferences: ^2.0.0
   intl: ^0.18.0
   fl_chart: ^0.69.0

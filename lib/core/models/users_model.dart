@@ -12,6 +12,27 @@ import 'dart:convert';
 //   }
 // }MentalEase@2024
 
+Future<void> signUpUser(String username, String email, String password) async {
+  var url = Uri.parse(
+      'https://mentalease.ccsdepartment.com/MentaleEase_Database/api.php/');
+  var response = await http.post(url, body: {
+    'username': username,
+    'email': email,
+    'password': password,
+  });
+
+  if (response.statusCode == 200) {
+    var data = jsonDecode(response.body);
+    if (data['status'] == 'success') {
+      print("Sign-up successful!");
+    } else {
+      print("Sign-up failed: ${data['message']}");
+    }
+  } else {
+    print("Error: ${response.reasonPhrase}");
+  }
+}
+
 Future<String> fetchQuoteForDay(String day) async {
   final response = await http.get(
     Uri.parse(
