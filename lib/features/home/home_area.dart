@@ -116,20 +116,15 @@ class _HomeAreaState extends State<HomeArea> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
+            const DrawerHeader(
+              decoration: BoxDecoration(
                 color: Color.fromARGB(255, 116, 8, 0),
               ),
               child: Row(
                 children: [
-                  Image.asset(
-                    'assets/images/mentalease_logo.png',
-                    width: 50,
-                    height: 50,
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'MentalEase Menu',
+                  SizedBox(width: 10),
+                  Text(
+                    'User Name',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -182,28 +177,13 @@ class _HomeAreaState extends State<HomeArea> {
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.person_2_outlined),
-              title: const Text('Sign-In'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return LoginForm(apiService: _apiService, formKey: _formKey);
-                }));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_2_rounded),
-              title: const Text('Sign-up'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const SignUpArea();
-                }));
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return LoginForm(
+                      apiService: ApiServices(), formKey: _formKey);
+                }));
               },
             ),
           ],

@@ -6,21 +6,21 @@ import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
 
 class LoginForm extends StatefulWidget {
-  final ApiService apiService;
+  final ApiServices apiService; // Use `ApiServices` for users' API
   final GlobalKey<FormState> formKey;
 
   LoginForm({
-    key,
+    Key? key,
     required this.apiService,
     required this.formKey,
-  });
+  }) : super(key: key);
 
   @override
   _LoginFormState createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _idNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   // Add a state variable to track password visibility
@@ -28,12 +28,11 @@ class _LoginFormState extends State<LoginForm> {
 
   void _login() async {
     if (widget.formKey.currentState!.validate()) {
-      Map<String, dynamic> credentials = {
-        'email': _usernameController.text.trim(),
-        'password': _passwordController.text.trim(),
-      };
-
-      var response = await widget.apiService.signIn(credentials);
+      // Use id_number for login
+      var response = await widget.apiService.signIn(
+        _idNumberController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
       if (!mounted) return;
 
@@ -42,9 +41,12 @@ class _LoginFormState extends State<LoginForm> {
           SnackBar(content: Text(response['message'])),
         );
 
+        // Navigate to the dashboard (home_area.dart) after successful login
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeArea()),
+          MaterialPageRoute(
+            builder: (context) => const HomeArea(),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,6 +61,7 @@ class _LoginFormState extends State<LoginForm> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Login"),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -76,13 +79,13 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
               customTextFormField(
-                controller: _usernameController,
-                labelText: 'Username',
-                hintText: 'Enter your username',
+                controller: _idNumberController,
+                labelText: 'ID Number',
+                hintText: 'Enter your ID number',
                 prefixIcon: Icons.person,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your Username';
+                    return 'Please enter your ID number';
                   }
                   return null;
                 },

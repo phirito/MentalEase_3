@@ -64,7 +64,7 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoginForm(
-                    apiService: ApiService(), // Pass the ApiService instance
+                    apiService: ApiServices(), // Pass the ApiService instance
                     formKey: GlobalKey<FormState>(), // Redirect to LoginForm
                   ),
                 ));
