@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mentalease_2/features/home/home_area.dart';
 import 'package:mentalease_2/features/signin/login_area.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/widgets/user_agreement.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.logo, required this.title});
@@ -56,25 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       },
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'I accept the Disclaimer & User Agreement ',
-                        style: TextStyle(fontSize: 15.0),
+                        style: GoogleFonts.quicksand(fontSize: 15.0),
                       ),
                     ),
                   ],
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return const HomeArea();
-                    }));
-                  },
-                  child: const Text(
-                    "Continue as Guest",
-                    style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),
-                  ),
                 ),
               ],
             ),

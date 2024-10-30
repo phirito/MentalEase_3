@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomContainer extends StatelessWidget {
   final String text;
@@ -36,7 +37,7 @@ class CustomContainer extends StatelessWidget {
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(
+          style: GoogleFonts.quicksand(
               color: Color.fromARGB(255, 46, 46, 46), fontSize: 18),
           textAlign: TextAlign.center,
         ),

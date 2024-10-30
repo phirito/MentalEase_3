@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dart';
@@ -113,10 +114,11 @@ class _MoodTrackerState extends State<MoodTracker> {
         } else if (snapshot.hasData && snapshot.data != null) {
           return Text(
             'Note: ${snapshot.data}',
-            style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic),
+            style:  GoogleFonts.quicksand(fontSize: 18, fontStyle: FontStyle.italic),
           );
         } else {
-          return const Text("No notes for today's mood.");
+          return Text("No notes for today's mood.",
+              style: GoogleFonts.quicksand());
         }
       },
     );
@@ -128,7 +130,7 @@ class _MoodTrackerState extends State<MoodTracker> {
         widget.moodTrackerManager.moodOfTheDay.isNotEmpty
             ? "Today's Mood: ${widget.moodTrackerManager.moodOfTheDay}"
             : "No mood selected for today.",
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        style: GoogleFonts.quicksand(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -138,7 +140,7 @@ class _MoodTrackerState extends State<MoodTracker> {
       padding: EdgeInsets.symmetric(vertical: mediaQuery.size.height * 0.01),
       child: Text(
         title,
-        style: TextStyle(
+        style: GoogleFonts.quicksand(
           fontSize: mediaQuery.size.width * 0.06,
           fontWeight: FontWeight.bold,
         ),

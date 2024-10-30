@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'widgets/splash_screen.dart';
 import 'widgets/onboarding_screen.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isFirstTime = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstTime();
+  }
+
+  _checkFirstTime() async {
+    var box = Hive.box('appBox');
+    bool? firstTime = box.get('isFirstTime', defaultValue: true);
+    setState(() {
+      _isFirstTime = firstTime!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(),
-      initialRoute: '/login',
+      title: 'Mental Ease',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: _isFirstTime ? OnboardingScreen() : SplashScreen(),
     );
   }
 }
@@ -26,5 +49,5 @@ void main() async {
   await Hive.openBox('toDoBox');
   await Hive.openBox('appData');
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }

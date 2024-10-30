@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dart';
@@ -10,7 +11,6 @@ import 'package:mentalease_2/features/jour_folder/journaling_area.dart';
 import 'package:mentalease_2/features/med_folder/meditate_area.dart';
 import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
 import 'package:mentalease_2/features/signin/login_area.dart';
-import 'package:mentalease_2/features/signup/signup_area.dart';
 import 'package:hive/hive.dart';
 
 class HomeArea extends StatefulWidget {
@@ -96,15 +96,21 @@ class _HomeAreaState extends State<HomeArea> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            const Text('Mental',
-                style: TextStyle(color: Colors.white, fontSize: 20)),
+            Text('Mental',
+                style: GoogleFonts.quicksand(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
             Image.asset(
               'assets/images/mentalease_logo.png',
               width: 40,
               height: 40,
             ),
-            const Text('Ease',
-                style: TextStyle(color: Colors.white, fontSize: 20)),
+            Text('Ease',
+                style: GoogleFonts.quicksand(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
         backgroundColor: const Color.fromARGB(255, 116, 8, 0),
@@ -116,26 +122,26 @@ class _HomeAreaState extends State<HomeArea> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
+            DrawerHeader(
+              decoration: const BoxDecoration(
                 color: Color.fromARGB(255, 116, 8, 0),
               ),
               child: Row(
                 children: [
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
                     'User Name',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
+                    style: GoogleFonts.quicksand(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             ListTile(
               leading: const Icon(Icons.home),
-              title: const Text('Home'),
+              title: Text('Home', style: GoogleFonts.quicksand()),
               onTap: () {
                 _onItemTapped(0);
                 Navigator.pop(context);
@@ -143,7 +149,7 @@ class _HomeAreaState extends State<HomeArea> {
             ),
             ListTile(
               leading: const Icon(Icons.track_changes),
-              title: const Text('Mood Tracker'),
+              title: Text('Mood Tracker', style: GoogleFonts.quicksand()),
               onTap: () {
                 _onItemTapped(1);
                 Navigator.pop(context);
@@ -151,7 +157,7 @@ class _HomeAreaState extends State<HomeArea> {
             ),
             ListTile(
               leading: const Icon(Icons.spa),
-              title: const Text('Meditation'),
+              title: Text('Meditation', style: GoogleFonts.quicksand()),
               onTap: () {
                 _onItemTapped(2);
                 Navigator.pop(context);
@@ -159,7 +165,7 @@ class _HomeAreaState extends State<HomeArea> {
             ),
             ListTile(
               leading: const Icon(Icons.book),
-              title: const Text('Journaling'),
+              title: Text('Journaling', style: GoogleFonts.quicksand()),
               onTap: () {
                 _onItemTapped(3);
                 Navigator.pop(context);
@@ -168,7 +174,7 @@ class _HomeAreaState extends State<HomeArea> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.phone_enabled),
-              title: const Text('Information Page'),
+              title: Text('Information Page', style: GoogleFonts.quicksand()),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return const InfomationPage();
@@ -178,7 +184,7 @@ class _HomeAreaState extends State<HomeArea> {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              title: Text('Logout', style: GoogleFonts.quicksand()),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return LoginForm(
@@ -228,25 +234,25 @@ class _HomeAreaState extends State<HomeArea> {
         items: [
           FlashyTabBarItem(
             icon: const Icon(Icons.home),
-            title: const Text('Home'),
+            title: Text('Home', style: GoogleFonts.quicksand()),
             activeColor: const Color.fromARGB(255, 128, 0, 0),
             inactiveColor: Colors.grey,
           ),
           FlashyTabBarItem(
             icon: const Icon(Icons.track_changes),
-            title: const Text('Mood'),
+            title: Text('Mood', style: GoogleFonts.quicksand()),
             activeColor: const Color.fromARGB(255, 116, 8, 0),
             inactiveColor: Colors.grey,
           ),
           FlashyTabBarItem(
             icon: const Icon(Icons.spa),
-            title: const Text('Meditate'),
+            title: Text('Meditate', style: GoogleFonts.quicksand()),
             activeColor: const Color.fromARGB(255, 116, 8, 0),
             inactiveColor: Colors.grey,
           ),
           FlashyTabBarItem(
             icon: const Icon(Icons.book),
-            title: const Text('Journaling'),
+            title: Text('Journaling', style: GoogleFonts.quicksand()),
             activeColor: const Color.fromARGB(255, 116, 8, 0),
             inactiveColor: Colors.grey,
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/features/home/home_widgets/features_widgets.dart';
 
@@ -53,12 +54,13 @@ Widget buildHomeContent({
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.all(14.0),
-                            child: const Text(
+                            child: Text(
                               'Quote of the day',
-                              style: TextStyle(
+                              style: GoogleFonts.quicksand(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 255, 255, 255)),
+                                  color:
+                                      const Color.fromARGB(255, 255, 255, 255)),
                             ),
                           ),
                           const Divider(),
@@ -66,7 +68,7 @@ Widget buildHomeContent({
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
                               quoteText,
-                              style: const TextStyle(
+                              style: GoogleFonts.quicksand(
                                   fontSize: 16,
                                   color: Color.fromARGB(255, 255, 255, 255)),
                               textAlign: TextAlign.center,

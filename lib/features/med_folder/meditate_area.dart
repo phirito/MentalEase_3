@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mentalease_2/features/med_folder/meditation_session_screen.dart';
 import 'package:mentalease_2/features/med_folder/session_history_screen.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MeditateArea extends StatefulWidget {
   const MeditateArea({super.key, required this.updateMeditationStatus});
@@ -65,7 +66,7 @@ class _MeditateAreaState extends State<MeditateArea> {
             const SizedBox(width: 10),
             Text(
               title,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
+              style: GoogleFonts.quicksand(fontSize: 18, color: Colors.white),
             ),
           ],
         ),
@@ -87,14 +88,14 @@ class _MeditateAreaState extends State<MeditateArea> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Title
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Text(
                     "Customize Duration",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.quicksand(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                // Timer Picker
                 Expanded(
                   child: CupertinoTimerPicker(
                     mode: CupertinoTimerPickerMode.ms,
@@ -106,7 +107,6 @@ class _MeditateAreaState extends State<MeditateArea> {
                     },
                   ),
                 ),
-                // Action Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -114,10 +114,10 @@ class _MeditateAreaState extends State<MeditateArea> {
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
-                      child: const Text(
+                      child: Text(
                         "Cancel",
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 194, 194, 194)),
+                        style: GoogleFonts.quicksand(
+                            color: const Color.fromARGB(255, 194, 194, 194)),
                       ),
                     ),
                     TextButton(
@@ -127,9 +127,10 @@ class _MeditateAreaState extends State<MeditateArea> {
                         });
                         Navigator.of(context).pop(); // Close the dialog
                       },
-                      child: const Text(
+                      child: Text(
                         "OK",
-                        style: TextStyle(color: Color.fromARGB(255, 114, 0, 0)),
+                        style: GoogleFonts.quicksand(
+                            color: const Color.fromARGB(255, 114, 0, 0)),
                       ),
                     ),
                   ],
@@ -166,7 +167,10 @@ class _MeditateAreaState extends State<MeditateArea> {
 
   Widget buildMeditationHistory() {
     if (_sessionHistory.isEmpty) {
-      return const Text('No meditation sessions recorded');
+      return Text(
+        'No meditation sessions recorded',
+        style: GoogleFonts.quicksand(),
+      );
     }
 
     return ListView.builder(
@@ -176,8 +180,11 @@ class _MeditateAreaState extends State<MeditateArea> {
         final session = _sessionHistory[index];
         return ListTile(
           title: Text(
-              'Duration: ${Duration(seconds: session['duration']).inMinutes} minutes'),
-          subtitle: Text('Time: ${session['time'].toString()}'),
+            'Duration: ${Duration(seconds: session['duration']).inMinutes} minutes',
+            style: GoogleFonts.quicksand(),
+          ),
+          subtitle: Text('Time: ${session['time'].toString()}',
+              style: GoogleFonts.quicksand()),
         );
       },
     );
@@ -195,18 +202,17 @@ class _MeditateAreaState extends State<MeditateArea> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Add the image at the top
             Image.asset(
-              'assets/images/meditation_img.png', // Path to the image
+              'assets/images/meditation_img.png',
               height: 200,
               width: 300,
-              fit: BoxFit.cover, // Adjust the image to cover the area
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 20), // Add some spacing after the image
-            // Display the currently selected duration
+            const SizedBox(height: 20),
+
             Text(
               'Selected Duration: $selectedMinutes min $selectedSeconds sec',
-              style: const TextStyle(fontSize: 16),
+              style: GoogleFonts.quicksand(fontSize: 16),
             ),
             const SizedBox(height: 10),
             _buildContainerButton(
@@ -225,13 +231,14 @@ class _MeditateAreaState extends State<MeditateArea> {
               _navigateToSessionHistoryPage,
             ),
             const SizedBox(height: 40), // Space between buttons and tip
-            const Align(
+            Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   "Tip: To meditate effectively, find a quiet spot, sit comfortably, and focus on your breathing. Let your thoughts pass without dwelling on them.",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style:
+                      GoogleFonts.quicksand(fontSize: 14, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -56,9 +57,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Enter your email to reset your password',
-                style: TextStyle(fontSize: 18),
+                style: GoogleFonts.quicksand(
+                    fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const SizedBox(height: 16),
               customTextFormField(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'my_home_page.dart'; // Import the existing home page
+import 'my_home_page.dart';
+import 'package:hive/hive.dart';
+import 'package:mentalease_2/features/signin/login_area.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

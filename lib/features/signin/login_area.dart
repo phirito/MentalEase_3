@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
 import 'package:mentalease_2/features/signin/forgotpass.dart';
 import 'package:mentalease_2/features/signup/signup_area.dart';
@@ -60,7 +61,10 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: Text(
+          "Login",
+          style: GoogleFonts.quicksand(fontWeight: FontWeight.bold),
+        ),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(

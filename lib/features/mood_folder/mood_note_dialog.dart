@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<String?> showMoodNoteDialog(BuildContext context) {
   TextEditingController noteController = TextEditingController();
@@ -7,7 +8,7 @@ Future<String?> showMoodNoteDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Add a note"),
+        title: Text("Add a note", style: GoogleFonts.quicksand()),
         content: TextField(
           controller: noteController,
           decoration: const InputDecoration(
@@ -19,13 +20,13 @@ Future<String?> showMoodNoteDialog(BuildContext context) {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: GoogleFonts.quicksand()),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(noteController.text);
             },
-            child: const Text("Save"),
+            child: Text("Save", style: GoogleFonts.quicksand()),
           ),
         ],
       );

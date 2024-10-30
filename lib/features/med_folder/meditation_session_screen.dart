@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/features/med_folder/meditate_timer.dart';
 import 'package:mentalease_2/features/home/home_manager/meditation_manager.dart';
 
@@ -17,7 +18,8 @@ class MeditationSessionPage extends StatelessWidget {
     final MeditationManager _meditationManager = MeditationManager();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Meditation Session")),
+      appBar: AppBar(
+          title: Text("Meditation Session", style: GoogleFonts.quicksand())),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

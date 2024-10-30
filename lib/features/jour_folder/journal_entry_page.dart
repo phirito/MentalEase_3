@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/features/home/home_manager/journal_manager.dart';
 
 class JournalEntryPage extends StatefulWidget {
@@ -29,8 +30,11 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
       widget.journalController.clear();
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entry Successful! Swipe to left <--'),
+        SnackBar(
+          content: Text(
+            'Entry Successful! Swipe to left <--',
+            style: GoogleFonts.quicksand(),
+          ),
           duration: Duration(seconds: 2),
         ),
       );
@@ -63,9 +67,12 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
 
     if (chores[index]['done']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Task marked as done! Removing in 3 seconds...'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(
+            'Task marked as done! Removing in 3 seconds...',
+            style: GoogleFonts.quicksand(),
+          ),
+          duration: const Duration(seconds: 2),
         ),
       );
       Future.delayed(const Duration(seconds: 3), () async {
@@ -86,8 +93,11 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
     widget.removeToDoCallback(chore);
     setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Task deleted!'),
+      SnackBar(
+        content: Text(
+          'Task deleted!',
+          style: GoogleFonts.quicksand(),
+        ),
         duration: Duration(seconds: 2),
       ),
     );
@@ -104,10 +114,10 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Journal Entry Section
-          const Text(
+          Text(
             "Journal Entry",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.quicksand(
+                fontSize: 18, fontWeight: FontWeight.bold),
           ),
           TextField(
             controller: widget.journalController,
@@ -120,17 +130,19 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _addJournalEntry,
-            child: const Text(
+            child: Text(
               "Add Entry",
-              style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),
+              style: GoogleFonts.quicksand(
+                  color: const Color.fromARGB(255, 116, 8, 0)),
             ),
           ),
           const SizedBox(height: 20),
 
           // Notes/To-Do Section
-          const Text(
+          Text(
             "Notes",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.quicksand(
+                fontSize: 18, fontWeight: FontWeight.bold),
           ),
           TextField(
             controller: widget.noteController,
@@ -142,17 +154,19 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _addChore,
-            child: const Text(
+            child: Text(
               "Add Note",
-              style: TextStyle(color: Color.fromARGB(255, 116, 8, 0)),
+              style: GoogleFonts.quicksand(
+                  color: const Color.fromARGB(255, 116, 8, 0)),
             ),
           ),
           const SizedBox(height: 20),
 
           // To-Do List
-          const Text(
+          Text(
             "To-Do List",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.quicksand(
+                fontSize: 18, fontWeight: FontWeight.bold),
           ),
           ListView.builder(
             shrinkWrap: true,
@@ -168,7 +182,7 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
                 ),
                 title: Text(
                   chores[index]['content'],
-                  style: TextStyle(
+                  style: GoogleFonts.quicksand(
                     decoration: chores[index]['done']
                         ? TextDecoration.lineThrough
                         : TextDecoration.none,

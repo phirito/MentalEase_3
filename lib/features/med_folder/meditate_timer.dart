@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MeditateTimer extends StatefulWidget {
   final int selectedDuration;
@@ -53,7 +54,7 @@ class _MeditateTimerState extends State<MeditateTimer>
   }
 
   void _startTimer() {
-    if (_sessionCompleted) return; // Prevent starting if session completed
+    if (_sessionCompleted) return;
     setState(() => _isRunning = !_isRunning);
     if (_isRunning) {
       _controller.repeat(reverse: true);
@@ -118,7 +119,6 @@ class _MeditateTimerState extends State<MeditateTimer>
 
   @override
   Widget build(BuildContext context) {
-    // Calculate remaining time
     final remainingTime = widget.selectedDuration - _start;
     final minutes = remainingTime ~/ 60;
     final seconds = remainingTime % 60;
@@ -127,7 +127,6 @@ class _MeditateTimerState extends State<MeditateTimer>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Breathing Animation and Timer
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: Stack(
@@ -152,7 +151,7 @@ class _MeditateTimerState extends State<MeditateTimer>
                 ),
                 Text(
                   "$minutes:${seconds.toString().padLeft(2, '0')}",
-                  style: const TextStyle(fontSize: 48),
+                  style: GoogleFonts.quicksand(fontSize: 48),
                 ),
               ],
             ),
@@ -165,11 +164,10 @@ class _MeditateTimerState extends State<MeditateTimer>
                 : _isRunning
                     ? _breathingText
                     : "Press Start to Meditate",
-            style: const TextStyle(fontSize: 24, color: Colors.grey),
+            style: GoogleFonts.quicksand(fontSize: 24, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 30),
-          // Control Buttons
           if (!_sessionCompleted)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -214,9 +212,9 @@ class _MeditateTimerState extends State<MeditateTimer>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 116, 0, 0),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Restart Session",
-                    style: TextStyle(color: Colors.white),
+                    style: GoogleFonts.quicksand(color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -227,9 +225,9 @@ class _MeditateTimerState extends State<MeditateTimer>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
                   ),
-                  child: const Text(
+                  child: Text(
                     "Back to Home",
-                    style: TextStyle(color: Colors.white),
+                    style: GoogleFonts.quicksand(color: Colors.white),
                   ),
                 ),
               ],

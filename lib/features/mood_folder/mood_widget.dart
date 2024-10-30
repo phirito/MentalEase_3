@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
   List<String> moods = ['Happy', 'Neutral', 'Sad', 'Angry', 'Anxious', 'Tired'];
@@ -55,9 +56,9 @@ Widget buildMoodSelectionGrid(
                   children: [
                     Text(
                       mood['emoji']!,
-                      style: const TextStyle(fontSize: 30),
+                      style: GoogleFonts.quicksand(fontSize: 30),
                     ),
-                    Text(mood['label']!),
+                    Text(mood['label']!, style: GoogleFonts.quicksand()),
                   ],
                 ),
               ),
@@ -75,8 +76,11 @@ Widget buildMoodSelectionGrid(
                 color: const Color.fromARGB(255, 24, 24, 24).withOpacity(0.8),
               ),
             ),
-            const Column(
-              children: [Text("Done")],
+            Column(
+              children: [
+                Text("Done",
+                    style: GoogleFonts.quicksand(fontWeight: FontWeight.bold))
+              ],
             )
           ],
         ),
@@ -118,10 +122,10 @@ Widget buildShareMoodHistoryButton(Function shareMoodHistory) {
       ),
     ),
     onPressed: () => shareMoodHistory(),
-    child: const Text(
+    child: Text(
       'Share Mood History',
-      style: TextStyle(
-        color: Color.fromARGB(255, 121, 0, 0),
+      style: GoogleFonts.quicksand(
+        color: const Color.fromARGB(255, 121, 0, 0),
       ),
     ),
   );

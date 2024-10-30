@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SessionHistoryPage extends StatelessWidget {
   final List<Map<String, dynamic>> sessionHistory;
@@ -9,12 +10,19 @@ class SessionHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Session History"),
+        title: Text(
+          "Session History",
+          style: GoogleFonts.quicksand(),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: sessionHistory.isEmpty
-            ? const Center(child: Text("No sessions completed yet."))
+            ? Center(
+                child: Text(
+                "No sessions completed yet.",
+                style: GoogleFonts.quicksand(),
+              ))
             : ListView.builder(
                 itemCount: sessionHistory.length,
                 itemBuilder: (context, index) {
@@ -51,8 +59,8 @@ class SessionHistoryPage extends StatelessWidget {
                         ),
                         subtitle: Text(
                           "${time.hour}:${time.minute.toString().padLeft(2, '0')} on ${time.day}/${time.month}/${time.year}",
-                          style:
-                              const TextStyle(fontSize: 16, color: Colors.grey),
+                          style: GoogleFonts.quicksand(
+                              fontSize: 16, color: Colors.grey),
                         ),
                       ),
                     ),

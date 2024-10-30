@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mentalease_2/features/home/home_manager/journal_manager.dart';
 
 class JournalHistoryPage extends StatefulWidget {
@@ -21,7 +22,10 @@ class _JournalHistoryPageState extends State<JournalHistoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Journal History"),
+        title: Text(
+          "Journal History",
+          style: GoogleFonts.quicksand(),
+        ),
         automaticallyImplyLeading: false,
       ),
       body: ListView.builder(
@@ -34,7 +38,10 @@ class _JournalHistoryPageState extends State<JournalHistoryPage> {
               child: ListTile(
                 title: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(history[index]['content']),
+                  child: Text(
+                    history[index]['content'],
+                    style: GoogleFonts.quicksand(),
+                  ),
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
@@ -53,9 +60,9 @@ class _JournalHistoryPageState extends State<JournalHistoryPage> {
   void _deleteJournalEntry(BuildContext context, int index) async {
     await widget.journalManager.deleteJournalEntry(index);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Journal entry deleted!'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text('Journal entry deleted!', style: GoogleFonts.quicksand()),
+        duration: const Duration(seconds: 2),
       ),
     );
     setState(() {}); // Refresh the list after deletion

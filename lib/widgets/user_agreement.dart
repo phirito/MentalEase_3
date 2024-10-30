@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UserAgreementPage extends StatelessWidget {
   const UserAgreementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      padding: EdgeInsets.all(16.0),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             "      User Agreement & Disclaimer",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20),
+            style: GoogleFonts.quicksand(fontSize: 20),
           ),
-          SizedBox(height: 9),
+          const SizedBox(height: 9),
           Text(
             '''
 Introduction
 Welcome to Mental Ease, an application designed to promote mental wellness for junior high school students through its features of Mood Tracking, Meditation, and Journaling. By using this application, you agree to the terms and conditions outlined in this User Agreement and Disclaimer. Please read the following carefully before using the app.''',
-            textAlign: TextAlign.justify, // Justify text alignment
+            textAlign: TextAlign.justify,
+            style: GoogleFonts.quicksand(),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             '''1. Purpose of the Application
   Mental Ease is intended to be a supplementary tool for promoting mindfulness, emotional awareness, and stress relief. The application offers features that help users manage their daily stressors but is not designed or intended to replace professional mental health care or therapy. It is important to note that Mental Ease is not a medical or psychological treatment tool and should not be used as a substitute for professional advice, diagnosis, or treatment.
@@ -51,14 +53,16 @@ Welcome to Mental Ease, an application designed to promote mental wellness for j
 
 9. Acceptance of Terms
   By downloading and using Mental Ease, you acknowledge that you have read, understood, and agreed to the terms outlined in this User Agreement and Disclaimer. If you do not agree with any of the terms, please discontinue use of the application immediately.''',
-            textAlign: TextAlign.justify, // Justify text alignment
+            textAlign: TextAlign.justify,
+            style: GoogleFonts.quicksand(),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             '''For any concerns or questions regarding this User Agreement and Disclaimer, please contact the developer at [Contact Information].
 
 This document is effective as of [Date].''',
-            textAlign: TextAlign.justify, // Justify text alignment
+            textAlign: TextAlign.justify,
+            style: GoogleFonts.quicksand(),
           ),
         ],
       ),
