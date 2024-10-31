@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'widgets/splash_screen.dart';
 import 'widgets/onboarding_screen.dart';
 
+//hatdog
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
