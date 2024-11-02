@@ -3,13 +3,35 @@ import 'package:intl/intl.dart';
 
 class MoodTrackerManager {
   final Box moodBox = Hive.box('moodBox');
+  String _moodOfTheDay = '';
+  String get moodOfTheDay => _moodOfTheDay;
+  List<Map<String, dynamic>> _moodHistory = [];
+  List<Map<String, dynamic>> get moodHistory => _moodHistory;
 
-  void setMood(String date, String mood) {
-    moodBox.put(date, mood);
+  List<Map<String, dynamic>> getMoodHistoryForCarousel() {
+    return _moodHistory.reversed.take(3).toList();
   }
 
-  String? getMood(String date) {
-    return moodBox.get(date);
+  List<Map<String, dynamic>> getAllMoodHistory() {
+    return _moodHistory;
+  }
+
+  Map<String, int> getMoodStats() {
+    Map<String, int> moodStats = {
+      'Happy': 0,
+      'Neutral': 0,
+      'Sad': 0,
+      'Angry': 0,
+      'Anxious': 0,
+      'Tired': 0,
+    };
+
+    for (var entry in _moodHistory) {
+      String mood = entry['mood'];
+      moodStats[mood] = (moodStats[mood] ?? 0) + 1;
+    }
+
+    return moodStats;
   }
 
   Map<String, String> getMoodHistory() {
@@ -20,12 +42,6 @@ class MoodTrackerManager {
     }
     return moodHistory;
   }
-
-  String _moodOfTheDay = '';
-  String get moodOfTheDay => _moodOfTheDay;
-
-  List<Map<String, dynamic>> _moodHistory = [];
-  List<Map<String, dynamic>> get moodHistory => _moodHistory;
 
   Future<void> loadMoodOfTheDay() async {
     var box = await Hive.openBox('moodBox');
@@ -54,33 +70,11 @@ class MoodTrackerManager {
     await box.put('moodHistory', _moodHistory);
   }
 
+  String? getMood(String date) {
+    return moodBox.get(date);
+  }
+
   // Function to get mood statistics for the graph
-  Map<String, int> getMoodStats() {
-    Map<String, int> moodStats = {
-      'Happy': 0,
-      'Neutral': 0,
-      'Sad': 0,
-      'Angry': 0,
-      'Anxious': 0,
-      'Tired': 0,
-    };
-
-    for (var entry in _moodHistory) {
-      String mood = entry['mood'];
-      moodStats[mood] = (moodStats[mood] ?? 0) + 1;
-    }
-
-    return moodStats;
-  }
-
-  List<Map<String, dynamic>> getMoodHistoryForCarousel() {
-    return _moodHistory.reversed.take(3).toList();
-  }
-
-  List<Map<String, dynamic>> getAllMoodHistory() {
-    return _moodHistory;
-  }
-
   String getMoodHistoryAsString() {
     if (_moodHistory.isEmpty) {
       return 'No mood history available.';
@@ -99,5 +93,8 @@ class MoodTrackerManager {
     return moodHistoryText;
   }
 
+  void setMood(String date, String mood) {
+    moodBox.put(date, mood);
+  }
   // Existing methods (e.g., getMoodStats) remain unchanged...
 }

@@ -114,7 +114,8 @@ class _MoodTrackerState extends State<MoodTracker> {
         } else if (snapshot.hasData && snapshot.data != null) {
           return Text(
             'Note: ${snapshot.data}',
-            style:  GoogleFonts.quicksand(fontSize: 18, fontStyle: FontStyle.italic),
+            style: GoogleFonts.quicksand(
+                fontSize: 18, fontStyle: FontStyle.italic),
           );
         } else {
           return Text("No notes for today's mood.",

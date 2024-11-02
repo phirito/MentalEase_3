@@ -1,8 +1,10 @@
+// login_area.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:mentalease_2/features/home/home_area.dart';
-import 'package:mentalease_2/features/signin/forgotpass.dart';
 import 'package:mentalease_2/features/signup/signup_area.dart';
+import 'package:mentalease_2/features/signin/forgotpass.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
 
@@ -38,6 +40,9 @@ class _LoginFormState extends State<LoginForm> {
       if (!mounted) return;
 
       if (response['status'] == 'success') {
+        var box = Hive.box('appBox');
+        await box.put('isLoggedIn', true);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'])),
         );
@@ -147,9 +152,10 @@ class _LoginFormState extends State<LoginForm> {
               const SizedBox(height: 10.0),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const SignUpArea();
-                  }));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUpArea()),
+                  );
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -165,9 +171,11 @@ class _LoginFormState extends State<LoginForm> {
               const SizedBox(height: 10.0),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return const ForgotPasswordPage();
-                  }));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordPage()),
+                  );
                 },
                 style: TextButton.styleFrom(
                     foregroundColor: const Color.fromARGB(255, 116, 8, 0)),

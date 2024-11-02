@@ -1,9 +1,9 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'widgets/splash_screen.dart';
 import 'widgets/onboarding_screen.dart';
 
-//hatdog testing ule
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -44,11 +44,12 @@ void main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('moodBox');
+  await Hive.openBox('moodHistory');
   await Hive.openBox('sessionBox');
   await Hive.openBox('meditationBox');
   await Hive.openBox('journalingBox');
   await Hive.openBox('toDoBox');
-  await Hive.openBox('appData');
+  await Hive.openBox('appBox');
 
   runApp(MyApp());
 }

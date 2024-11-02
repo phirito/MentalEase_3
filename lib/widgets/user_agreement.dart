@@ -13,7 +13,7 @@ class UserAgreementPage extends StatelessWidget {
         children: <Widget>[
           const SizedBox(height: 16),
           Text(
-            "      User Agreement & Disclaimer",
+            "User Agreement & Disclaimer",
             textAlign: TextAlign.center,
             style: GoogleFonts.quicksand(fontSize: 20),
           ),
