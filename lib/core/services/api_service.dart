@@ -6,6 +6,23 @@ class ApiServices {
   static const String baseUrl =
       'https://mentalease.ccsdepartment.com/MentalEase_Database/users_account/users_api.php'; // New API URL
 
+  // Mood Tracker function
+  Future<void> updateMoodForUser(String weekday, String mood) async {
+    final url = Uri.parse('$baseUrl');
+    final response = await http.post(
+      url,
+      body: {
+        'action': 'update_mood',
+        'weekday': weekday,
+        'mood': mood,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update mood');
+    }
+  }
+
   // Sign-Up function
   Future<Map<String, dynamic>> signUp(
       String idNumber, String email, String password) async {

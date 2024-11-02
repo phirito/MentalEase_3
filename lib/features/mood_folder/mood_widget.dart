@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mentalease_2/core/services/api_service.dart';
+
+Future<void> sendMoodToServer(String mood) async {
+  try {
+    ApiServices apiServices = ApiServices();
+    String weekday = DateTime.now().weekday.toString();
+    await apiServices.updateMoodForUser(weekday, mood);
+  } catch (error) {
+    print('Failed to send mood: $error');
+  }
+}
 
 List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
   List<String> moods = ['Happy', 'Neutral', 'Sad', 'Angry', 'Anxious', 'Tired'];
@@ -40,9 +51,10 @@ Widget buildMoodSelectionGrid(
           final bool isSelectedMood = moodOfTheDay == mood['label'];
 
           return GestureDetector(
-            onTap: () {
+            onTap: () async {
               if (!isMoodSelected) {
                 handleMoodSelection(mood['label']!, true, mood['label']!);
+                await sendMoodToServer(mood['label']!);
               }
             },
             child: Opacity(
