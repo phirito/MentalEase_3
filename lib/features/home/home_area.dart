@@ -31,6 +31,8 @@ class _HomeAreaState extends State<HomeArea> {
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
 
+  String? _idNumber;
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -74,6 +76,12 @@ class _HomeAreaState extends State<HomeArea> {
     await _moodTrackerManager.loadMoodOfTheDay();
     await _meditationManager.checkMeditationStatus();
     await _toDoManager.loadToDoList();
+
+    // Load idNumber from Hive box
+    var box = Hive.box('appBox');
+    setState(() {
+      _idNumber = box.get('idNumber', defaultValue: '');
+    });
 
     if (mounted) {
       setState(() {});
@@ -223,6 +231,7 @@ class _HomeAreaState extends State<HomeArea> {
                 apiService: _apiService,
               ),
               MoodTracker(
+                idNumber: _idNumber ?? '',
                 updateMoodOfTheDay: _updateMoodOfTheDay,
                 moodTrackerManager: _moodTrackerManager,
               ),

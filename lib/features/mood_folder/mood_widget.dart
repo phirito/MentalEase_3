@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 
-Future<void> sendMoodToServer(String mood) async {
+Future<void> sendMoodToServer(String idNumber, String mood) async {
   try {
     ApiServices apiServices = ApiServices();
-    String weekday = DateFormat('EEEE')
+    String day = DateFormat('EEEE')
         .format(DateTime.now())
-        .toLowerCase(); // Get the day as lowercase (e.g., "monday")
+        .toLowerCase(); // Get current day
     await apiServices.updateMoodForUser(
-        weekday, mood); // Send the weekday and mood to the server
+        idNumber, day, mood); // Send id_number, day, and mood to the server
   } catch (error) {
     print('Failed to send mood: $error');
   }
@@ -32,6 +32,7 @@ Widget buildMoodSelectionGrid(
   BuildContext context,
   List<Map<String, String>> moods,
   String moodOfTheDay,
+  String idNumber,
   Function(String, bool, String) handleMoodSelection,
   bool isMoodSelected,
 ) {
@@ -58,8 +59,8 @@ Widget buildMoodSelectionGrid(
             onTap: () async {
               if (!isMoodSelected) {
                 handleMoodSelection(mood['label']!, true, mood['label']!);
-                await sendMoodToServer(
-                    mood['label']!); // Send selected mood to the server
+                await sendMoodToServer(idNumber,
+                    mood['label']!); // Send selected mood with id_number
               }
             },
             child: Opacity(

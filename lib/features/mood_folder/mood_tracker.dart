@@ -14,11 +14,13 @@ import 'mood_note_dialog.dart';
 class MoodTracker extends StatefulWidget {
   final MoodTrackerManager moodTrackerManager;
   final Function(String) updateMoodOfTheDay;
+  final String idNumber; // Add idNumber to pass it to the grid
 
   const MoodTracker({
     super.key,
     required this.moodTrackerManager,
     required this.updateMoodOfTheDay,
+    required this.idNumber, // Make it a required parameter
   });
 
   @override
@@ -242,6 +244,7 @@ class _MoodTrackerState extends State<MoodTracker> {
                 context,
                 _moods,
                 widget.moodTrackerManager.moodOfTheDay,
+                widget.idNumber, // Pass the idNumber parameter
                 _handleMoodSelection,
                 widget.moodTrackerManager.moodOfTheDay.isNotEmpty,
               ),

@@ -7,13 +7,15 @@ class ApiServices {
       'https://mentalease.ccsdepartment.com/MentalEase_Database/users_account/users_api.php'; // New API URL
 
   // Mood Tracker function
-  Future<void> updateMoodForUser(String weekday, String mood) async {
-    final url = Uri.parse('$baseUrl');
+  Future<void> updateMoodForUser(
+      String idNumber, String day, String mood) async {
+    final url = Uri.parse(baseUrl);
     final response = await http.post(
       url,
       body: {
         'action': 'update_mood',
-        'weekday': weekday,
+        'id_number': idNumber,
+        'day': day,
         'mood': mood,
       },
     );
