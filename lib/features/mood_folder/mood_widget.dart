@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 
 Future<void> sendMoodToServer(String mood) async {
   try {
     ApiServices apiServices = ApiServices();
-    String weekday = DateTime.now().weekday.toString();
-    await apiServices.updateMoodForUser(weekday, mood);
+    String weekday = DateFormat('EEEE')
+        .format(DateTime.now())
+        .toLowerCase(); // Get the day as lowercase (e.g., "monday")
+    await apiServices.updateMoodForUser(
+        weekday, mood); // Send the weekday and mood to the server
   } catch (error) {
     print('Failed to send mood: $error');
   }
@@ -54,7 +58,8 @@ Widget buildMoodSelectionGrid(
             onTap: () async {
               if (!isMoodSelected) {
                 handleMoodSelection(mood['label']!, true, mood['label']!);
-                await sendMoodToServer(mood['label']!);
+                await sendMoodToServer(
+                    mood['label']!); // Send selected mood to the server
               }
             },
             child: Opacity(
