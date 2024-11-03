@@ -13,7 +13,12 @@ class ApiServices {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final data = jsonDecode(response.body);
+      if (data['status'] == 'success') {
+        return data['data'] ?? {};
+      } else {
+        throw Exception(data['message'] ?? 'Failed to load mood history');
+      }
     } else {
       throw Exception('Failed to load mood history');
     }
@@ -32,7 +37,7 @@ class ApiServices {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['status'] == 'success') {
-        return data['data'];
+        return data['data'] ?? {};
       } else {
         throw Exception(data['message']);
       }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // Add this for BuildContext
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
@@ -86,9 +86,7 @@ class MoodTrackerManager {
           await apiServices.getMoodHistory(idNumber);
 
       // Update the local Hive storage with data from the server
-      for (String day in moodData.keys) {
-        moodBox.put(day, moodData[day]);
-      }
+      moodBox.putAll(moodData);
 
       // Update _moodHistory based on the fetched server data
       _moodHistory = moodData.entries
