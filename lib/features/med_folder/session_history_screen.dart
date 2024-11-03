@@ -30,16 +30,8 @@ class SessionHistoryPage extends StatelessWidget {
                   var durationMinutes = session['duration'] ~/ 60;
                   var durationSeconds = session['duration'] % 60;
 
-                  // Ensure the time is correctly parsed as a DateTime object
-                  DateTime time;
-                  if (session['time'] is String) {
-                    time = DateTime.parse(session['time']);
-                  } else if (session['time'] is DateTime) {
-                    time = session['time'];
-                  } else {
-                    // Fallback if the data is corrupted or unexpected
-                    time = DateTime.now();
-                  }
+                  // Parse 'time' to DateTime
+                  DateTime time = DateTime.parse(session['time']);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
