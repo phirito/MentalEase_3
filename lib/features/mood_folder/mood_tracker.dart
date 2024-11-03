@@ -66,7 +66,8 @@ class _MoodTrackerState extends State<MoodTracker> {
   }
 
   Future<void> _loadMoodData() async {
-    await widget.moodTrackerManager.loadMoodOfTheDay();
+    await widget.moodTrackerManager
+        .loadMoodOfTheDay(widget.idNumber); // Pass `idNumber`
     setState(() {});
   }
 
@@ -75,8 +76,9 @@ class _MoodTrackerState extends State<MoodTracker> {
     if (widget.moodTrackerManager.moodOfTheDay.isEmpty) {
       setState(() {
         if (selected) {
-          widget.updateMoodOfTheDay(selectedMood);
-          widget.moodTrackerManager.updateMoodOfTheDay(selectedMood);
+          widget.updateMoodOfTheDay(selectedMood); // Remove `context`
+          widget.moodTrackerManager.updateMoodOfTheDay(
+              selectedMood, widget.idNumber, context); // Keep `context` here
           _addMoodNoteDialog();
         }
       });

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mentalease_2/features/home/home_area.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:mentalease_2/core/services/api_service.dart';
+import 'package:mentalease_2/features/home/home_area.dart';
 import 'package:mentalease_2/features/signin/login_area.dart';
-
-import '../core/services/api_service.dart';
+import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dart'; // Import MoodTrackerManager
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -34,10 +34,17 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(Duration(seconds: 3)); // Splash screen duration
     var box = Hive.box('appBox');
     bool? loggedIn = box.get('isLoggedIn', defaultValue: false);
-    if (loggedIn == true) {
+    String? idNumber = box.get('idNumber'); // Retrieve the idNumber from Hive
+
+    if (loggedIn == true && idNumber != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeArea()),
+        MaterialPageRoute(
+          builder: (context) => HomeArea(
+            moodTrackerManager: MoodTrackerManager(), // Initialize instance
+            idNumber: idNumber, // Pass retrieved idNumber
+          ),
+        ),
       );
     } else {
       Navigator.pushReplacement(

@@ -1,14 +1,49 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 //users api
 class ApiServices {
   static const String baseUrl =
       'https://mentalease.ccsdepartment.com/MentalEase_Database/users_account/users_api.php'; // New API URL
 
+  Future<Map<String, dynamic>> getMoodHistory(String idNumber) async {
+    final url =
+        Uri.parse('$baseUrl?action=get_mood_history&id_number=$idNumber');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load mood history');
+    }
+  }
+
+  Future<Map<String, dynamic>> getMoodData(String idNumber) async {
+    final url = Uri.parse('$baseUrl');
+    final response = await http.post(
+      url,
+      body: {
+        'action': 'get_mood_data',
+        'id_number': idNumber,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['status'] == 'success') {
+        return data['data'];
+      } else {
+        throw Exception(data['message']);
+      }
+    } else {
+      throw Exception('Failed to fetch mood data');
+    }
+  }
+
   // Mood Tracker function
   Future<void> updateMoodForUser(
-      String idNumber, String day, String mood) async {
+      BuildContext context, String idNumber, String day, String mood) async {
     final url = Uri.parse(baseUrl);
     final response = await http.post(
       url,
@@ -20,8 +55,16 @@ class ApiServices {
       },
     );
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update mood');
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['status'] == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Mood updated successfully")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update mood: ${data['message']}")),
+      );
     }
   }
 
@@ -74,18 +117,6 @@ class ApiService {
 
     return jsonDecode(response.body);
   }
-
-  // Sign-Up
-  // Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData) async {
-  //   final url = Uri.parse('$baseUrl'); // This should call your `signupapi.php`
-  //   final response = await http.post(
-  //     url,
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: jsonEncode(userData),
-  //   );
-
-  //   return jsonDecode(response.body);
-  // }
 
   //Sign-In
   Future<Map<String, dynamic>> signIn(Map<String, dynamic> credentials) async {

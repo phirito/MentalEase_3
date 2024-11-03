@@ -3,18 +3,27 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
+import 'package:hive/hive.dart';
 
-Future<void> sendMoodToServer(String idNumber, String mood) async {
+Future<void> sendMoodToServer(
+    BuildContext context, String idNumber, String mood) async {
   try {
     ApiServices apiServices = ApiServices();
     String day = DateFormat('EEEE')
         .format(DateTime.now())
         .toLowerCase(); // Get current day
-    await apiServices.updateMoodForUser(
-        idNumber, day, mood); // Send id_number, day, and mood to the server
+    await apiServices.updateMoodForUser(context, idNumber, day,
+        mood); // Send id_number, day, and mood to the server
   } catch (error) {
-    print('Failed to send mood: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error sending mood: $error')),
+    );
   }
+}
+
+Future<String> getMoodForDay(String day) async {
+  var moodBox = await Hive.openBox('moodBox');
+  return moodBox.get(day, defaultValue: 'No mood set');
 }
 
 List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
@@ -22,7 +31,8 @@ List<FlSpot> generateMoodChartSpots(Map<String, int> moodStats) {
   List<FlSpot> spots = [];
 
   for (int i = 0; i < moods.length; i++) {
-    spots.add(FlSpot(i.toDouble(), moodStats[moods[i]]!.toDouble()));
+    spots.add(FlSpot(i.toDouble(),
+        moodStats[moods[i]]?.toDouble() ?? 0.0)); // Use null-aware operator
   }
 
   return spots;
@@ -59,8 +69,11 @@ Widget buildMoodSelectionGrid(
             onTap: () async {
               if (!isMoodSelected) {
                 handleMoodSelection(mood['label']!, true, mood['label']!);
-                await sendMoodToServer(idNumber,
-                    mood['label']!); // Send selected mood with id_number
+                await sendMoodToServer(
+                    context,
+                    idNumber,
+                    mood[
+                        'label']!); // Pass context to display snackbar if error occurs
               }
             },
             child: Opacity(

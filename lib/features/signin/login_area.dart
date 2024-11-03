@@ -7,9 +7,10 @@ import 'package:mentalease_2/features/signup/signup_area.dart';
 import 'package:mentalease_2/features/signin/forgotpass.dart';
 import 'package:mentalease_2/core/services/api_service.dart';
 import 'package:mentalease_2/widgets/shared_widgets.dart';
+import 'package:mentalease_2/features/home/home_manager/mood_tracker_manager.dart'; // Import MoodTrackerManager
 
 class LoginForm extends StatefulWidget {
-  final ApiServices apiService; // Use `ApiServices` for users' API
+  final ApiServices apiService;
   final GlobalKey<FormState> formKey;
 
   LoginForm({
@@ -25,13 +26,13 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final TextEditingController _idNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final MoodTrackerManager _moodTrackerManager =
+      MoodTrackerManager(); // Create an instance of MoodTrackerManager
 
-  // Add a state variable to track password visibility
   bool _isPasswordVisible = false;
 
   void _login() async {
     if (widget.formKey.currentState!.validate()) {
-      // Use id_number for login
       var response = await widget.apiService.signIn(
         _idNumberController.text.trim(),
         _passwordController.text.trim(),
@@ -47,11 +48,20 @@ class _LoginFormState extends State<LoginForm> {
           SnackBar(content: Text(response['message'])),
         );
 
-        // Navigate to the dashboard (home_area.dart) after successful login
+        // Load the mood data for the current user
+        await _moodTrackerManager
+            .loadMoodOfTheDay(_idNumberController.text.trim());
+
+        // Navigate to the home area after successful login
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomeArea(),
+            builder: (context) => HomeArea(
+              moodTrackerManager:
+                  _moodTrackerManager, // Pass the instance to HomeArea
+              idNumber: _idNumberController.text
+                  .trim(), // Pass the ID number // Pass the ID number
+            ),
           ),
         );
       } else {
@@ -100,11 +110,9 @@ class _LoginFormState extends State<LoginForm> {
                 },
               ),
               const SizedBox(height: 16.0),
-
-              // Password field with eye icon for visibility toggle
               TextFormField(
                 controller: _passwordController,
-                obscureText: !_isPasswordVisible, // Toggle visibility
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   hintText: 'Enter your password',

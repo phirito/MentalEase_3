@@ -15,7 +15,14 @@ import 'package:mentalease_2/features/mood_folder/mood_tracker.dart';
 import 'package:mentalease_2/features/signin/login_area.dart';
 
 class HomeArea extends StatefulWidget {
-  const HomeArea({super.key});
+  final MoodTrackerManager moodTrackerManager;
+  final String idNumber;
+
+  const HomeArea({
+    Key? key,
+    required this.moodTrackerManager,
+    required this.idNumber,
+  }) : super(key: key);
 
   @override
   State<HomeArea> createState() => _HomeAreaState();
@@ -24,14 +31,23 @@ class HomeArea extends StatefulWidget {
 class _HomeAreaState extends State<HomeArea> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  final MoodTrackerManager _moodTrackerManager = MoodTrackerManager();
   final MeditationManager _meditationManager = MeditationManager();
   final ToDoManager _toDoManager = ToDoManager();
 
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
 
-  String? _idNumber;
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -41,7 +57,8 @@ class _HomeAreaState extends State<HomeArea> {
   }
 
   void _updateMoodOfTheDay(String selectedMood) async {
-    await _moodTrackerManager.updateMoodOfTheDay(selectedMood);
+    await widget.moodTrackerManager
+        .updateMoodOfTheDay(selectedMood, widget.idNumber, context);
     setState(() {});
   }
 
@@ -60,28 +77,10 @@ class _HomeAreaState extends State<HomeArea> {
     setState(() {});
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
   Future<void> _loadData() async {
-    await _moodTrackerManager.loadMoodOfTheDay();
+    await widget.moodTrackerManager.loadMoodOfTheDay(widget.idNumber);
     await _meditationManager.checkMeditationStatus();
     await _toDoManager.loadToDoList();
-
-    // Load idNumber from Hive box
-    var box = Hive.box('appBox');
-    setState(() {
-      _idNumber = box.get('idNumber', defaultValue: '');
-    });
 
     if (mounted) {
       setState(() {});
@@ -91,7 +90,7 @@ class _HomeAreaState extends State<HomeArea> {
   @override
   Widget build(BuildContext context) {
     String today = DateTime.now().toIso8601String().split('T').first;
-    String? moodToday = _moodTrackerManager.getMood(today);
+    String? moodToday = widget.moodTrackerManager.getMood(today);
 
     List<String> _loadToDoList() {
       Box journalBox = Hive.box('journalingBox');
@@ -198,7 +197,12 @@ class _HomeAreaState extends State<HomeArea> {
                 title: Text('Logout', style: GoogleFonts.quicksand()),
                 onTap: () async {
                   var box = Hive.box('appBox');
+
+                  // Clear user-specific mood data
+                  await box.delete('moodData');
                   await box.put('isLoggedIn', false);
+
+                  // Navigate to the login screen
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -224,16 +228,16 @@ class _HomeAreaState extends State<HomeArea> {
             },
             children: <Widget>[
               buildHomeContent(
-                moodOfTheDay: _moodTrackerManager.moodOfTheDay,
+                moodOfTheDay: widget.moodTrackerManager.moodOfTheDay,
                 toDoList: _toDoManager.toDoList,
                 hasMeditatedToday: _meditationManager.hasMeditatedToday,
                 onRefresh: _loadData,
                 apiService: _apiService,
               ),
               MoodTracker(
-                idNumber: _idNumber ?? '',
+                idNumber: widget.idNumber,
                 updateMoodOfTheDay: _updateMoodOfTheDay,
-                moodTrackerManager: _moodTrackerManager,
+                moodTrackerManager: widget.moodTrackerManager,
               ),
               MeditateArea(updateMeditationStatus: _updateMeditationStatus),
               JournalingArea(
