@@ -178,13 +178,14 @@ class _MeditateAreaState extends State<MeditateArea> {
       itemCount: _sessionHistory.length,
       itemBuilder: (context, index) {
         final session = _sessionHistory[index];
+        DateTime time = DateTime.parse(session['time']);
         return ListTile(
           title: Text(
             'Duration: ${Duration(seconds: session['duration']).inMinutes} minutes',
             style: GoogleFonts.quicksand(),
           ),
-          subtitle: Text('Time: ${session['time'].toString()}',
-              style: GoogleFonts.quicksand()),
+          subtitle:
+              Text('Time: ${time.toString()}', style: GoogleFonts.quicksand()),
         );
       },
     );

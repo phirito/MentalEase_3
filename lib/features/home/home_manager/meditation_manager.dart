@@ -23,15 +23,16 @@ class MeditationManager {
     }
 
     // Load session history from Hive
-    _sessionHistory = List<Map<String, dynamic>>.from(
-            box.get('sessionHistory', defaultValue: []))
-        .map((session) => {
-              'duration': session['duration'],
-              'time': session['time'] is String
-                  ? DateTime.parse(session['time'])
-                  : session['time'],
-            })
-        .toList();
+    List<dynamic> rawHistory = box.get('sessionHistory', defaultValue: []);
+
+    _sessionHistory = rawHistory.map<Map<String, dynamic>>((sessionData) {
+      // Explicitly convert to Map<String, dynamic>
+      Map<String, dynamic> session = Map<String, dynamic>.from(sessionData);
+      return {
+        'duration': session['duration'],
+        'time': session['time'], // Keep 'time' as String
+      };
+    }).toList();
 
     // ignore: avoid_print
     print("Session history loaded: $_sessionHistory");
@@ -47,7 +48,19 @@ class MeditationManager {
   // Save session history to Hive
   Future<void> saveSessionHistory(Map<String, dynamic> session) async {
     var box = await Hive.openBox('meditationBox');
-    _sessionHistory.add(session);
+
+    // Ensure 'time' is a String
+    Map<String, dynamic> sessionData = {
+      'duration': session['duration'],
+      'time': session['time'] is DateTime
+          ? (session['time'] as DateTime).toIso8601String()
+          : session['time'],
+    };
+
+    // Update local session history
+    _sessionHistory.add(sessionData);
+
+    // Save updated session history to Hive
     await box.put('sessionHistory', _sessionHistory);
 
     // ignore: avoid_print

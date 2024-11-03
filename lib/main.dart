@@ -1,4 +1,3 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'widgets/splash_screen.dart';
@@ -44,7 +43,6 @@ void main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('moodBox');
-  await Hive.openBox('moodHistory');
   await Hive.openBox('sessionBox');
   await Hive.openBox('meditationBox');
   await Hive.openBox('journalingBox');
