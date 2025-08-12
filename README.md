@@ -1,5 +1,5 @@
-#🧠 MentalEase — Mindfulness & Wellness App for Junior High Students
-MentalEase is a mobile mindfulness and wellness application designed specifically for junior high school students at Manuel S. Enverga University Foundation Candelaria Inc..
+🧠 MentalEase — Mindfulness & Wellness App for Junior High Students
+  MentalEase is a mobile mindfulness and wellness application designed specifically for junior high school students at Manuel S. Enverga University Foundation Candelaria Inc..
 It serves as a supplementary tool to the Office of Student Affairs and Services (OSAS), helping students manage stress, track their moods, and practice mindfulness — all while integrating seamlessly with existing mental health support systems.
 
 ⚠️ Note: MentalEase is not a replacement for professional counseling or human interaction. It is a digital companion intended to make mental health support more accessible and personalized.
